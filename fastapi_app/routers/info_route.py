@@ -6,6 +6,7 @@ from models.database_models import Line, LineResponse, Stop, Route, Event, Event
 import db.dicts
 from db.dicts import stops, lines, notifications
 from repositiories.route_finding import find_nearest_edge
+from repositiories.user_repository import update_user_level
 
 router = APIRouter(prefix="/info", tags=["info"])
 
@@ -158,8 +159,10 @@ async def vote_event(vote_data: EventVote):
     # Update vote counts
     if vote_data.voteType == "upvote":
         event.upvotes += 1
+        update_user_level(vote_data.userId, True)
     elif vote_data.voteType == "downvote":
         event.downvotes += 1
+        update_user_level(vote_data.userId, False)
     else:
         raise HTTPException(status_code=400, detail="voteType must be 'upvote' or 'downvote'")
     

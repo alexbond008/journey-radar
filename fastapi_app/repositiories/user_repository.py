@@ -45,4 +45,18 @@ def get_users_on_line(line_id: int) -> List[User]:
             if train and train.line_id == line_id:
                 users_on_line.append(user)
     
-    return users_on_line
+    return users_on_lines
+
+def update_user_level(user_id: int, flag: bool) -> User:
+    """Aktualizuje poziom użytkownika"""
+    
+    user = get_user_by_id(user_id)
+
+    if flag:
+        user.level += 1
+    else:
+        user.level -= 1
+
+    users[user_id] = user
+
+    return user
