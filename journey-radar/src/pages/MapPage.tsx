@@ -9,10 +9,12 @@ import { useEvents } from '@/hooks/useEvents';
 import { useRoutes } from '@/hooks/useRoutes';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { BottomNavigation } from '@/components/layout/BottomNavigation';
+import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export function MapPage() {
   const { events } = useEvents();
-  const { selectedRoute } = useRoutes();
+  const { selectedRoute, clearSelectedRoute } = useRoutes();
   const { latitude, longitude } = useGeolocation(true);
 
   const [routePanelOpen, setRoutePanelOpen] = useState(false);
@@ -29,12 +31,38 @@ export function MapPage() {
       <Header onRoutesClick={() => setRoutePanelOpen(true)} />
       
       <div className="flex-1 relative">
-        <MapView
-          events={events}
-          selectedRoute={selectedRoute}
-          userLocation={userLocation}
-          onMarkerClick={setSelectedEventId}
-        />
+        <div className="absolute inset-0 z-0">
+          <MapView
+            events={events}
+            selectedRoute={selectedRoute}
+            userLocation={userLocation}
+            onMarkerClick={setSelectedEventId}
+          />
+        </div>
+
+        {/* Selected Route Badge */}
+        {selectedRoute && (
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[999] animate-in slide-in-from-top duration-300">
+            <div className="bg-card border-2 border-primary shadow-lg rounded-full px-6 py-3 flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-sm">
+                  {selectedRoute.number}
+                </div>
+                <div className="text-sm font-semibold text-card-foreground">
+                  {selectedRoute.name}
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 rounded-full hover:bg-destructive/20"
+                onClick={clearSelectedRoute}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Report Problem Button */}
         <div className="absolute bottom-6 right-6 z-[1100]">

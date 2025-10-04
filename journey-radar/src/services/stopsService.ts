@@ -9,7 +9,7 @@ export const stopsService = {
   },
 
   // Get stop by ID
-  async getStopById(stopId: number): Promise<Stop> {
+  async getStopById(stopId: string): Promise<Stop> {
     const response = await api.get<Stop>(`/info/get_stop_info/${stopId}`);
     return response.data;
   },
@@ -31,8 +31,8 @@ export const stopsService = {
   },
 
   // Get routes for a specific stop
-  async getRoutesForStop(stopId: number) {
-    const response = await api.get(`/info/get_routes_for_stop/${stopId}`);
+  async getRoutesForStop(stopId: string) {
+    const response = await api.get(`/info/get_lines_for_stop/${stopId}`);
     return response.data;
   },
 };

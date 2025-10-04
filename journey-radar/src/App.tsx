@@ -6,25 +6,28 @@ import { StopsProvider } from '@/context/StopsContext';
 import { RoutesProvider } from '@/context/RoutesContext';
 import { EventsProvider } from '@/context/EventsContext';
 import { MapProvider } from '@/context/MapContext';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from 'sonner';
 
 function App() {
   return (
     <BrowserRouter>
-      <StopsProvider>
-        <RoutesProvider>
-          <EventsProvider>
-            <MapProvider>
-              <Routes>
-                <Route path="/" element={<MapPage />} />
-                <Route path="/incidents" element={<IncidentsPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-              </Routes>
-              <Toaster position="top-center" />
-            </MapProvider>
-          </EventsProvider>
-        </RoutesProvider>
-      </StopsProvider>
+      <TooltipProvider delayDuration={200}>
+        <StopsProvider>
+          <RoutesProvider>
+            <EventsProvider>
+              <MapProvider>
+                <Routes>
+                  <Route path="/" element={<MapPage />} />
+                  <Route path="/incidents" element={<IncidentsPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                </Routes>
+                <Toaster position="top-center" />
+              </MapProvider>
+            </EventsProvider>
+          </RoutesProvider>
+        </StopsProvider>
+      </TooltipProvider>
     </BrowserRouter>
   );
 }

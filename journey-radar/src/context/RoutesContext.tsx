@@ -38,7 +38,10 @@ export function RoutesProvider({ children }: RoutesProviderProps) {
   };
 
   const selectRoute = (routeId: number | string) => {
+    console.log('Selecting route:', routeId);
+    console.log('Available routes:', routes.map(r => ({ id: r.id, number: r.number, name: r.name })));
     const route = routes.find((r) => r.id === Number(routeId));
+    console.log('Found route:', route ? { id: route.id, number: route.number, name: route.name } : 'null');
     setSelectedRoute(route || null);
   };
 

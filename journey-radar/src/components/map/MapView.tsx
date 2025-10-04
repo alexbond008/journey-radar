@@ -114,6 +114,10 @@ export function MapView({ events, selectedRoute, userLocation, onMarkerClick }: 
 
       // Draw route polyline if selected
       if (selectedRoute && selectedRoute.polyline.length > 0) {
+        console.log('Drawing route:', selectedRoute.number, selectedRoute.name);
+        console.log('Route has', selectedRoute.polyline.length, 'polyline points');
+        console.log('Route has', selectedRoute.stops.length, 'stops');
+        
         // Remove existing route polyline
         if (routePolylineRef.current) {
           routePolylineRef.current.remove();
@@ -126,6 +130,8 @@ export function MapView({ events, selectedRoute, userLocation, onMarkerClick }: 
           opacity: 0.8,
           smoothFactor: 1,
         }).addTo(mapInstanceRef.current!);
+
+        console.log('Polyline added to map');
 
         // Add stop markers along the route
         if (selectedRoute.stops && selectedRoute.stops.length > 0) {
@@ -162,13 +168,20 @@ export function MapView({ events, selectedRoute, userLocation, onMarkerClick }: 
 
             stopMarkersRef.current.push(stopMarker);
           });
+          
+          console.log('Added', selectedRoute.stops.length, 'stop markers');
         }
 
         // Fit map to show entire route
-        mapInstanceRef.current!.fitBounds(routePolylineRef.current.getBounds(), {
+        const bounds = routePolylineRef.current.getBounds();
+        console.log('Fitting map to bounds:', bounds);
+        mapInstanceRef.current!.fitBounds(bounds, {
           padding: [50, 50],
         });
+        
+        console.log('Map centered on route');
       } else {
+        console.log('No route selected or empty polyline');
         if (routePolylineRef.current) {
           routePolylineRef.current.remove();
           routePolylineRef.current = null;
