@@ -39,7 +39,6 @@ class Event(BaseModel):
     description: str
     timestamp: datetime
     location: LatLng
-    routeId: str
     upvotes: int = 0
     downvotes: int = 0
     isResolved: bool = False
@@ -53,7 +52,6 @@ class EventCreate(BaseModel):
     title: str
     description: str
     location: LatLng
-    routeId: str
     reportedBy: str
 
 class EventVote(BaseModel):
@@ -65,7 +63,6 @@ class Edge(BaseModel):
     id: int
     from_stop: int  # Stop ID
     to_stop: int    # Stop ID
-    distance: float
 
 
 class Line(BaseModel):

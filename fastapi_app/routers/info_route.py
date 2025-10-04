@@ -71,10 +71,8 @@ async def get_stops_for_route(route_id: str = Query(..., description="Route ID")
 @router.post("/report_event", response_model=Event)
 async def report_event(event_data: EventCreate):
     """Report a new event for a route"""
-    # Validate route exists
-    route = next((r for r in REAL_ROUTES if r.id == event_data.routeId), None)
-    if not route:
-        raise HTTPException(status_code=404, detail=f"Route with ID {event_data.routeId} not found")
+
+    edge_id = find_nearest_edge(event_data.location)
     
     # Create new event
     new_event = Event(
@@ -84,7 +82,7 @@ async def report_event(event_data: EventCreate):
         description=event_data.description,
         timestamp=datetime.now(),
         location=event_data.location,
-        routeId=event_data.routeId,
+        edge_affected=edge_id,
         upvotes=0,
         downvotes=0,
         isResolved=False,
