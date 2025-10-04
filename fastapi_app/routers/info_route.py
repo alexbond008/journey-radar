@@ -2,40 +2,13 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional
 from datetime import datetime
 import uuid
-from models.database_models import Line, Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng
-from db.dicts import Notification, stops, lines, notifications
+from models.database_models import Line, Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng, Notification
+from db.dicts import stops, lines, notifications
 
 router = APIRouter(prefix="/info", tags=["info"])
 
 # Events storage (in production this would be a database)
-EVENTS_STORAGE = [
-    Event(
-        id="event_001",
-        type=IncidentType.DELAY,
-        title="Opóźnienie na linii 1",
-        description="Autobus opóźniony o 15 minut z powodu korków",
-        timestamp=datetime.now(),
-        location=LatLng(lat=50.0683947, lng=19.9475035),  # KRAKÓW GŁÓWNY
-        routeId="route_1",
-        upvotes=5,
-        downvotes=1,
-        isResolved=False,
-        reportedBy="user123"
-    ),
-    Event(
-        id="event_002",
-        type=IncidentType.CANCELLATION,
-        title="Odwołany kurs linii 2",
-        description="Kurs odwołany z powodu awarii technicznej pojazdu",
-        timestamp=datetime.now(),
-        location=LatLng(lat=50.0484386, lng=19.956833),  # KRAKÓW ZABŁOCIE
-        routeId="route_2",
-        upvotes=3,
-        downvotes=0,
-        isResolved=True,
-        reportedBy="user456"
-    ),
-]
+EVENTS_STORAGE = []
 
 def notify_user(user_id: str, message: str):
     notifications.append(Notification(user_id=user_id, message=message, timestamp=datetime.now()))

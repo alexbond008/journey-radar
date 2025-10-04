@@ -1,7 +1,8 @@
+import db.dicts
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from models.database_models import User, Train, Stop, Line, Edge, Event, LatLng, IncidentType
+from models.database_models import Notification, User, Train, Stop, Line, Edge, Event, LatLng, IncidentType
 from datetime import datetime
 from typing import Dict, List
 
@@ -287,6 +288,8 @@ def my_print(lines_dict: Dict[int, Line]):
             print(f"   {i:2d}. {station_name}")
         
         print(f"   📊 Łącznie: {len(stations_in_order)} przystanków")
+
+notifications: list[Notification] = []
 
 if __name__ == "__main__":
     my_print(lines)

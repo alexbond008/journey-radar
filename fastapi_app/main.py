@@ -12,10 +12,8 @@ app.add_middleware(
     allow_headers=["*"],  
 )
 
-from routers.testapi1router import router as test1_router
 from routers.info_route import router as info_router
 
-app.include_router(test1_router)
 app.include_router(info_router)
 
 
