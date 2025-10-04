@@ -38,8 +38,6 @@ async def get_stops_for_line(line_id: str = Query(..., description="Line ID")):
 async def report_event(event_data: EventCreate):
     """Report a new event for a route"""
 
-    stops = get_all_stops()
-
     edge_id = find_nearest_edge(event_data.location, stops)
     
     # Create new event
