@@ -90,6 +90,7 @@ class User(BaseModel):
     email: Optional[str] = None
     current_train_id: Optional[int] = None
     level: int = 0
+    reputation: str
 
 class Notification(BaseModel):
     user_id: int

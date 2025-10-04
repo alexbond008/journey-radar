@@ -59,4 +59,19 @@ def update_user_level(user_id: int, flag: bool) -> User:
 
     users[user_id] = user
 
+    if user.level < 0:
+        user.reputation = "czarna lista"
+    elif user.level < 10:
+        user.reputation = "początkujący podróżnik"
+    elif user.level < 20:
+        user.reputation = "podróżnik"
+    elif user.level < 30:
+        user.reputation = "ekspert podróży"
+    elif user.level < 40:
+        user.reputation = "mistrz podróży"
+    elif user.level < 50:
+        user.reputation = "legenda podróży"
+    else:
+        user.reputation = "guru podróży"
+
     return user
