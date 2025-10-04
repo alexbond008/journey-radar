@@ -13,8 +13,10 @@ app.add_middleware(
 )
 
 from routers.info_route import router as info_router
+from routers.trains_route import router as trains_router
 
 app.include_router(info_router)
+app.include_router(trains_router)
 
 
 @app.on_event("startup")

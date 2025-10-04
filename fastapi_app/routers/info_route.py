@@ -14,6 +14,7 @@ EVENTS_STORAGE = []
 def notify_user(user_id: str, message: str):
     notifications.append(Notification(user_id=user_id, message=message, timestamp=datetime.now()))
 
+
 @router.get("/get_stops", response_model=List[Stop])
 async def get_all_stops():
     """Get all bus stops from CSV data"""
@@ -53,8 +54,12 @@ async def get_line_with_stops(line_id: int) -> LineResponse:
 @router.post("/report_event", response_model=Event)
 async def report_event(event_data: EventCreate):
     """Report a new event for a route"""
-
-    edge_id = find_nearest_edge(event_data.location)
+    route = next((r for r in lines.values() if r.id == event_data.routeId), None)
+    if not route:
+        raise HTTPException(status_code=404, detail=f"Route with ID {event_data.routeId} not found")
+    
+    # Use first edge of the route as default
+    edge_id = route.stops[0].id if route.stops else None
     
     # Create new event
     new_event = Event(
@@ -223,6 +228,7 @@ async def get_user_notifications(user_id: str) -> list[Notification]:
     """Get notifications for a specific user (stub implementation)"""
     user_notifications = [n for n in notifications if n.user_id == user_id]
     return user_notifications
+
 
 
 
