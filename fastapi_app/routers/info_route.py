@@ -328,7 +328,7 @@ async def get_llm_answer(prompt: str) -> str:
     return response.choices[0].message.content
 
     
-@router.post("get_route")
+@router.post("/get_route")
 async def get_route(start:Stop, end:Stop):
     return get_best_route(start=start, end=end)
 

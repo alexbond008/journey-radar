@@ -1,7 +1,7 @@
-from models.database_models import LatLng, Stop, Line, Edge, Schedule
+from models.database_models import LatLng, Stop, Line, Schedule
 from repositiories.user_repository import get_stop_by_id
 from db.dicts import lines
-from typing import List, Dict, Optional, Tuple
+from typing import List, Optional, Dict
 from datetime import time, datetime
 from queue import PriorityQueue
 import math
@@ -95,7 +95,7 @@ def get_possible_connect(current_stop: Stop, current_time: time):
     
     return possible_arriving
 
-def get_best_route(start: Stop, end: Stop, start_time: time = datetime.now().time()) -> Optional[Dict[int, Line]]:
+def get_best_route(start: Stop, end: Stop, start_time: time = time(6, 0)) -> Optional[Dict[int, Line]]:
     """Znajduje najlepszą trasę między dwoma przystankami używając algorytmu Dijkstry"""
     visited = set()
     prev = {}  # poprzednik: stop_id -> poprzedni stop_id
@@ -114,7 +114,7 @@ def get_best_route(start: Stop, end: Stop, start_time: time = datetime.now().tim
         current_stop = get_stop_by_id(current_stop_id)
 
         if current_stop_id == end.id:
-            # Rekonstrukcja trasy i tworzenie segmentów
+            # Rekonstrukcja trasy jako segmenty linii
             return _reconstruct_route_segments(start, end, prev, line_info)
 
         for diff_time, schedule, arrive_time, next_stop_id, line in get_possible_connect(current_stop, current_time):
@@ -132,8 +132,8 @@ def get_best_route(start: Stop, end: Stop, start_time: time = datetime.now().tim
 
     return None  # brak połączenia
 
-def _reconstruct_route_segments(start: Stop, end: Stop, prev: Dict[int, int], line_info: Dict[int, Tuple[Line, Schedule]]) -> Dict[int, Line]:
-    """Rekonstruuje trasę jako segmenty linii z odpowiednimi przystankami i harmonogramami"""
+def _reconstruct_route_segments(start: Stop, end: Stop, prev: Dict[int, int], line_info: Dict[int, tuple]) -> Dict[int, Line]:
+    """Rekonstruuje trasę jako segmenty linii z przystankami i harmonogramami"""
     # Rekonstrukcja ścieżki
     path = []
     current = end.id
@@ -146,8 +146,8 @@ def _reconstruct_route_segments(start: Stop, end: Stop, prev: Dict[int, int], li
     # Grupowanie przystanków według linii
     segments = {}
     current_segment = 1
-    current_line: Optional[Line] = None
-    current_schedule: Optional[Schedule] = None
+    current_line = None
+    current_schedule = None
     segment_stops = []
     
     for i, stop in enumerate(path):
@@ -168,10 +168,13 @@ def _reconstruct_route_segments(start: Stop, end: Stop, prev: Dict[int, int], li
             if stop.id in line_info:
                 line, schedule = line_info[stop.id]
                 if current_line and line.id != current_line.id:
-                    # Nowa linia - zapisz poprzedni segment
+                    # Nowa linia - zapisz poprzedni segment z przystankiem przesiadkowym
                     if current_line and segment_stops and current_schedule:
+                        # Dodaj przystanek przesiadkowy na koniec poprzedniego segmentu
+                        segment_stops.append(stop)
                         segments[current_segment] = _create_line_segment(current_line, segment_stops, current_schedule)
                         current_segment += 1
+                        # Rozpocznij nowy segment od przystanku przesiadkowego
                         segment_stops = [stop]
                         current_line = line
                         current_schedule = schedule
@@ -188,8 +191,11 @@ def _reconstruct_route_segments(start: Stop, end: Stop, prev: Dict[int, int], li
                     for line in lines.values():
                         if line and line.edges and any(edge.from_stop == stop.id or edge.to_stop == stop.id for edge in line.edges):
                             if current_line and segment_stops and current_schedule:
+                                # Dodaj przystanek przesiadkowy na koniec poprzedniego segmentu
+                                segment_stops.append(stop)
                                 segments[current_segment] = _create_line_segment(current_line, segment_stops, current_schedule)
                                 current_segment += 1
+                            # Rozpocznij nowy segment od przystanku przesiadkowego
                             segment_stops = [stop]
                             current_line = line
                             current_schedule = line.time_table[0] if line.time_table else None
@@ -203,16 +209,6 @@ def _reconstruct_route_segments(start: Stop, end: Stop, prev: Dict[int, int], li
 
 def _create_line_segment(original_line: Line, stops: List[Stop], schedule: Schedule) -> Line:
     """Tworzy segment linii z podanymi przystankami i harmonogramem"""
-    # Tworzenie krawędzi między kolejnymi przystankami
-    edges = []
-    for i in range(len(stops) - 1):
-        edge = Edge(
-            id=original_line.id * 1000 + i,  # Unikalne ID
-            from_stop=stops[i].id,
-            to_stop=stops[i + 1].id
-        )
-        edges.append(edge)
-    
     # Filtrowanie harmonogramu tylko dla przystanków w segmencie
     stop_ids = [stop.id for stop in stops]
     filtered_schedule = Schedule(
@@ -223,6 +219,8 @@ def _create_line_segment(original_line: Line, stops: List[Stop], schedule: Sched
     return Line(
         id=original_line.id,
         name=original_line.name,
-        edges=edges,
-        time_table=[filtered_schedule]
+        edges=None,  # edges = None zgodnie z wymaganiem
+        time_table=[filtered_schedule],
+        stops=stops  # uzupełniamy stops w kolejności jak w trasie
     )
+
