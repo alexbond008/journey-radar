@@ -1,8 +1,9 @@
-from models.database_models import User, Train, Stop, Line, Edge, Event, LatLng
-from datetime import datetime
-from typing import Dict, List
-from db.dicts import users, trains, stops, events,  edges, lines
+from models.database_models import User, Train, Stop, Line, Edge, Event, LatLng, Schedule
+from datetime import time, datetime
+from typing import Dict, List, Optional
+from db.dicts import users, trains, stops, events,  edges, lines, schedules
 
+# Funkcje pomocnicze do manipulacji danymi
 def get_all_users() -> List[User]:
     """Zwraca listę wszystkich użytkowników"""
     return list(users.values())
@@ -75,3 +76,21 @@ def update_user_level(user_id: int, flag: bool) -> User:
         user.reputation = "guru podróży"
 
     return user
+
+def get_all_stops() -> List[Stop]:
+    """Zwraca listę wszystkich przystanków"""
+
+    stops_list = list(stops.values())
+    return stops_list
+
+def get_schedules_by_line(line_id: int) -> List[Schedule]:
+    """Zwraca listę harmonogramów dla danej linii"""
+    line = lines.get(line_id)
+    if line:
+        return line.time_table
+    return []
+
+def get_schedule_by_id(schedule_id: int) -> Schedule:
+    """Zwraca harmonogram po ID"""
+    return schedules[schedule_id]
+

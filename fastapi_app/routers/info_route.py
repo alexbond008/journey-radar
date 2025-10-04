@@ -281,6 +281,8 @@ async def get_user_notifications(user_id: str) -> list[Notification]:
     return user_notifications
 
 
+
+
 @router.get("/users")
 async def get_all_users() -> list[User]:
     """Get all users (stub implementation)"""

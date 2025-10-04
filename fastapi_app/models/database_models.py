@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, time
 from enum import Enum
 
 class IncidentType(str, Enum):
@@ -24,6 +24,12 @@ class Stop(BaseModel):
     description: Optional[str] = None
     lat: float
     lon: float
+
+    def __hash__(self) -> int:
+        return self.id
+    
+    def __eq__(self, value: object) -> bool:
+        return super().__eq__(id)
 
 class Route(BaseModel):
     id: int
@@ -65,6 +71,10 @@ class Edge(BaseModel):
     to_stop: int    # Stop ID
 
 
+class Schedule(BaseModel):
+    id: int
+    stop_to_time: dict[int, time]
+
 class LineResponse(BaseModel):
     id: int
     name: str
@@ -75,6 +85,7 @@ class Line(BaseModel):
     name: str
     number: Optional[str] = None
     edges: list[Edge]
+    time_table: List[Schedule]   
     stops: Optional[List[Stop]] = None
 
 

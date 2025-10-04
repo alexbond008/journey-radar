@@ -158,31 +158,923 @@ edges: Dict[int, Edge] = {
     77: Edge(id=77, from_stop=51, to_stop=50), # WIELICZKA PARK → WIELICZKA RYNEK-KOPALNIA
 }
 
+# Tabela Schedules - 5 harmonogramów dla każdej linii w obie strony
+schedules: Dict[int, Schedule] = {
+    # Linia 1: Oświęcim → Kraków Bronowice (5 harmonogramów)
+    1: Schedule(
+        id=1,
+        stop_to_time={
+            1: time(6, 0),   # OŚWIĘCIM
+            2: time(6, 5),   # DWORY
+            3: time(6, 10),  # WŁOSIENICA
+            4: time(6, 15),  # PRZECISZÓW
+            5: time(6, 20),  # ZATOR PARK ROZRYWKI
+            6: time(6, 25),  # ZATOR
+            7: time(6, 30),  # SPYTKOWICE
+            8: time(6, 35),  # SPYTKOWICE KĘPKI
+            9: time(6, 40),  # RYCZÓW
+            10: time(6, 45), # PÓŁWIEŚ
+            11: time(6, 50), # BRZEŹNICA
+            12: time(6, 55), # JAŚKOWICE
+            13: time(7, 0),  # WIELKIE DROGI
+            14: time(7, 5),  # ZELCZYNA
+            15: time(7, 10), # PODBORY SKAWIŃSKIE
+            16: time(7, 15), # SKAWINA ZACHODNIA
+            17: time(7, 20), # SKAWINA
+            18: time(7, 25), # SKAWINA JAGIELNIA
+            19: time(7, 30), # KRAKÓW SIDZINA
+            20: time(7, 35), # KRAKÓW OPATKOWICE
+            21: time(7, 40), # KRAKÓW SWOSZOWICE
+            22: time(7, 45), # KRAKÓW ZABŁOCIE
+            23: time(7, 50), # KRAKÓW GRZEGÓRZKI
+            24: time(7, 55), # KRAKÓW GŁÓWNY
+            25: time(8, 0),  # KRAKÓW ŁOBZÓW
+            26: time(8, 5),  # KRAKÓW BRONOWICE
+        }
+    ),
+    2: Schedule(
+        id=2,
+        stop_to_time={
+            1: time(8, 0),   # OŚWIĘCIM
+            2: time(8, 5),   # DWORY
+            3: time(8, 10),  # WŁOSIENICA
+            4: time(8, 15),  # PRZECISZÓW
+            5: time(8, 20),  # ZATOR PARK ROZRYWKI
+            6: time(8, 25),  # ZATOR
+            7: time(8, 30),  # SPYTKOWICE
+            8: time(8, 35),  # SPYTKOWICE KĘPKI
+            9: time(8, 40),  # RYCZÓW
+            10: time(8, 45), # PÓŁWIEŚ
+            11: time(8, 50), # BRZEŹNICA
+            12: time(8, 55), # JAŚKOWICE
+            13: time(9, 0),  # WIELKIE DROGI
+            14: time(9, 5),  # ZELCZYNA
+            15: time(9, 10), # PODBORY SKAWIŃSKIE
+            16: time(9, 15), # SKAWINA ZACHODNIA
+            17: time(9, 20), # SKAWINA
+            18: time(9, 25), # SKAWINA JAGIELNIA
+            19: time(9, 30), # KRAKÓW SIDZINA
+            20: time(9, 35), # KRAKÓW OPATKOWICE
+            21: time(9, 40), # KRAKÓW SWOSZOWICE
+            22: time(9, 45), # KRAKÓW ZABŁOCIE
+            23: time(9, 50), # KRAKÓW GRZEGÓRZKI
+            24: time(9, 55), # KRAKÓW GŁÓWNY
+            25: time(10, 0), # KRAKÓW ŁOBZÓW
+            26: time(10, 5), # KRAKÓW BRONOWICE
+        }
+    ),
+    3: Schedule(
+        id=3,
+        stop_to_time={
+            1: time(10, 0),  # OŚWIĘCIM
+            2: time(10, 5),  # DWORY
+            3: time(10, 10), # WŁOSIENICA
+            4: time(10, 15), # PRZECISZÓW
+            5: time(10, 20), # ZATOR PARK ROZRYWKI
+            6: time(10, 25), # ZATOR
+            7: time(10, 30), # SPYTKOWICE
+            8: time(10, 35), # SPYTKOWICE KĘPKI
+            9: time(10, 40), # RYCZÓW
+            10: time(10, 45), # PÓŁWIEŚ
+            11: time(10, 50), # BRZEŹNICA
+            12: time(10, 55), # JAŚKOWICE
+            13: time(11, 0),  # WIELKIE DROGI
+            14: time(11, 5),  # ZELCZYNA
+            15: time(11, 10), # PODBORY SKAWIŃSKIE
+            16: time(11, 15), # SKAWINA ZACHODNIA
+            17: time(11, 20), # SKAWINA
+            18: time(11, 25), # SKAWINA JAGIELNIA
+            19: time(11, 30), # KRAKÓW SIDZINA
+            20: time(11, 35), # KRAKÓW OPATKOWICE
+            21: time(11, 40), # KRAKÓW SWOSZOWICE
+            22: time(11, 45), # KRAKÓW ZABŁOCIE
+            23: time(11, 50), # KRAKÓW GRZEGÓRZKI
+            24: time(11, 55), # KRAKÓW GŁÓWNY
+            25: time(12, 0),  # KRAKÓW ŁOBZÓW
+            26: time(12, 5),  # KRAKÓW BRONOWICE
+        }
+    ),
+    4: Schedule(
+        id=4,
+        stop_to_time={
+            1: time(12, 0),  # OŚWIĘCIM
+            2: time(12, 5),  # DWORY
+            3: time(12, 10), # WŁOSIENICA
+            4: time(12, 15), # PRZECISZÓW
+            5: time(12, 20), # ZATOR PARK ROZRYWKI
+            6: time(12, 25), # ZATOR
+            7: time(12, 30), # SPYTKOWICE
+            8: time(12, 35), # SPYTKOWICE KĘPKI
+            9: time(12, 40), # RYCZÓW
+            10: time(12, 45), # PÓŁWIEŚ
+            11: time(12, 50), # BRZEŹNICA
+            12: time(12, 55), # JAŚKOWICE
+            13: time(13, 0),  # WIELKIE DROGI
+            14: time(13, 5),  # ZELCZYNA
+            15: time(13, 10), # PODBORY SKAWIŃSKIE
+            16: time(13, 15), # SKAWINA ZACHODNIA
+            17: time(13, 20), # SKAWINA
+            18: time(13, 25), # SKAWINA JAGIELNIA
+            19: time(13, 30), # KRAKÓW SIDZINA
+            20: time(13, 35), # KRAKÓW OPATKOWICE
+            21: time(13, 40), # KRAKÓW SWOSZOWICE
+            22: time(13, 45), # KRAKÓW ZABŁOCIE
+            23: time(13, 50), # KRAKÓW GRZEGÓRZKI
+            24: time(13, 55), # KRAKÓW GŁÓWNY
+            25: time(14, 0),  # KRAKÓW ŁOBZÓW
+            26: time(14, 5),  # KRAKÓW BRONOWICE
+        }
+    ),
+    5: Schedule(
+        id=5,
+        stop_to_time={
+            1: time(14, 0),  # OŚWIĘCIM
+            2: time(14, 5),  # DWORY
+            3: time(14, 10), # WŁOSIENICA
+            4: time(14, 15), # PRZECISZÓW
+            5: time(14, 20), # ZATOR PARK ROZRYWKI
+            6: time(14, 25), # ZATOR
+            7: time(14, 30), # SPYTKOWICE
+            8: time(14, 35), # SPYTKOWICE KĘPKI
+            9: time(14, 40), # RYCZÓW
+            10: time(14, 45), # PÓŁWIEŚ
+            11: time(14, 50), # BRZEŹNICA
+            12: time(14, 55), # JAŚKOWICE
+            13: time(15, 0),  # WIELKIE DROGI
+            14: time(15, 5),  # ZELCZYNA
+            15: time(15, 10), # PODBORY SKAWIŃSKIE
+            16: time(15, 15), # SKAWINA ZACHODNIA
+            17: time(15, 20), # SKAWINA
+            18: time(15, 25), # SKAWINA JAGIELNIA
+            19: time(15, 30), # KRAKÓW SIDZINA
+            20: time(15, 35), # KRAKÓW OPATKOWICE
+            21: time(15, 40), # KRAKÓW SWOSZOWICE
+            22: time(15, 45), # KRAKÓW ZABŁOCIE
+            23: time(15, 50), # KRAKÓW GRZEGÓRZKI
+            24: time(15, 55), # KRAKÓW GŁÓWNY
+            25: time(16, 0),  # KRAKÓW ŁOBZÓW
+            26: time(16, 5),  # KRAKÓW BRONOWICE
+        }
+    ),
+    
+    # Linia 2: Miechów → Kraków Lotnisko (5 harmonogramów)
+    10: Schedule(
+        id=10,
+        stop_to_time={
+            30: time(6, 30), # MIECHÓW
+            31: time(6, 35), # KAMIEŃCZYCE
+            32: time(6, 40), # SZCZEPANOWICE
+            33: time(6, 45), # SMROKÓW
+            34: time(6, 50), # SŁOMNIKI
+            35: time(6, 55), # SŁOMNIKI MIASTO
+            36: time(7, 0),  # NIEDŹWIEDŹ
+            37: time(7, 5),  # GOSZCZA
+            38: time(7, 10), # ŁUCZYCE
+            39: time(7, 15), # BARANÓWKA
+            40: time(7, 20), # ZASTÓW
+            41: time(7, 25), # KRAKÓW PIASTÓW
+            42: time(7, 30), # KRAKÓW BATOWICE
+            22: time(7, 35), # KRAKÓW ZABŁOCIE
+            23: time(7, 40), # KRAKÓW GRZEGÓRZKI
+            24: time(7, 45), # KRAKÓW GŁÓWNY
+            25: time(7, 50), # KRAKÓW ŁOBZÓW
+            26: time(7, 55), # KRAKÓW BRONOWICE
+            43: time(8, 0),  # KRAKÓW LOTNISKO
+        }
+    ),
+    11: Schedule(
+        id=11,
+        stop_to_time={
+            30: time(8, 30), # MIECHÓW
+            31: time(8, 35), # KAMIEŃCZYCE
+            32: time(8, 40), # SZCZEPANOWICE
+            33: time(8, 45), # SMROKÓW
+            34: time(8, 50), # SŁOMNIKI
+            35: time(8, 55), # SŁOMNIKI MIASTO
+            36: time(9, 0),  # NIEDŹWIEDŹ
+            37: time(9, 5),  # GOSZCZA
+            38: time(9, 10), # ŁUCZYCE
+            39: time(9, 15), # BARANÓWKA
+            40: time(9, 20), # ZASTÓW
+            41: time(9, 25), # KRAKÓW PIASTÓW
+            42: time(9, 30), # KRAKÓW BATOWICE
+            22: time(9, 35), # KRAKÓW ZABŁOCIE
+            23: time(9, 40), # KRAKÓW GRZEGÓRZKI
+            24: time(9, 45), # KRAKÓW GŁÓWNY
+            25: time(9, 50), # KRAKÓW ŁOBZÓW
+            26: time(9, 55), # KRAKÓW BRONOWICE
+            43: time(10, 0), # KRAKÓW LOTNISKO
+        }
+    ),
+    12: Schedule(
+        id=12,
+        stop_to_time={
+            30: time(10, 30), # MIECHÓW
+            31: time(10, 35), # KAMIEŃCZYCE
+            32: time(10, 40), # SZCZEPANOWICE
+            33: time(10, 45), # SMROKÓW
+            34: time(10, 50), # SŁOMNIKI
+            35: time(10, 55), # SŁOMNIKI MIASTO
+            36: time(11, 0),  # NIEDŹWIEDŹ
+            37: time(11, 5),  # GOSZCZA
+            38: time(11, 10), # ŁUCZYCE
+            39: time(11, 15), # BARANÓWKA
+            40: time(11, 20), # ZASTÓW
+            41: time(11, 25), # KRAKÓW PIASTÓW
+            42: time(11, 30), # KRAKÓW BATOWICE
+            22: time(11, 35), # KRAKÓW ZABŁOCIE
+            23: time(11, 40), # KRAKÓW GRZEGÓRZKI
+            24: time(11, 45), # KRAKÓW GŁÓWNY
+            25: time(11, 50), # KRAKÓW ŁOBZÓW
+            26: time(11, 55), # KRAKÓW BRONOWICE
+            43: time(12, 0),  # KRAKÓW LOTNISKO
+        }
+    ),
+    13: Schedule(
+        id=13,
+        stop_to_time={
+            30: time(12, 30), # MIECHÓW
+            31: time(12, 35), # KAMIEŃCZYCE
+            32: time(12, 40), # SZCZEPANOWICE
+            33: time(12, 45), # SMROKÓW
+            34: time(12, 50), # SŁOMNIKI
+            35: time(12, 55), # SŁOMNIKI MIASTO
+            36: time(13, 0),  # NIEDŹWIEDŹ
+            37: time(13, 5),  # GOSZCZA
+            38: time(13, 10), # ŁUCZYCE
+            39: time(13, 15), # BARANÓWKA
+            40: time(13, 20), # ZASTÓW
+            41: time(13, 25), # KRAKÓW PIASTÓW
+            42: time(13, 30), # KRAKÓW BATOWICE
+            22: time(13, 35), # KRAKÓW ZABŁOCIE
+            23: time(13, 40), # KRAKÓW GRZEGÓRZKI
+            24: time(13, 45), # KRAKÓW GŁÓWNY
+            25: time(13, 50), # KRAKÓW ŁOBZÓW
+            26: time(13, 55), # KRAKÓW BRONOWICE
+            43: time(14, 0),  # KRAKÓW LOTNISKO
+        }
+    ),
+    14: Schedule(
+        id=14,
+        stop_to_time={
+            30: time(14, 30), # MIECHÓW
+            31: time(14, 35), # KAMIEŃCZYCE
+            32: time(14, 40), # SZCZEPANOWICE
+            33: time(14, 45), # SMROKÓW
+            34: time(14, 50), # SŁOMNIKI
+            35: time(14, 55), # SŁOMNIKI MIASTO
+            36: time(15, 0),  # NIEDŹWIEDŹ
+            37: time(15, 5),  # GOSZCZA
+            38: time(15, 10), # ŁUCZYCE
+            39: time(15, 15), # BARANÓWKA
+            40: time(15, 20), # ZASTÓW
+            41: time(15, 25), # KRAKÓW PIASTÓW
+            42: time(15, 30), # KRAKÓW BATOWICE
+            22: time(15, 35), # KRAKÓW ZABŁOCIE
+            23: time(15, 40), # KRAKÓW GRZEGÓRZKI
+            24: time(15, 45), # KRAKÓW GŁÓWNY
+            25: time(15, 50), # KRAKÓW ŁOBZÓW
+            26: time(15, 55), # KRAKÓW BRONOWICE
+            43: time(16, 0),  # KRAKÓW LOTNISKO
+        }
+    ),
+    
+    # Linia 3: Wieliczka → Kraków Lotnisko (5 harmonogramów)
+    20: Schedule(
+        id=20,
+        stop_to_time={
+            50: time(6, 15), # WIELICZKA RYNEK-KOPALNIA
+            51: time(6, 20), # WIELICZKA PARK
+            52: time(6, 25), # WIELICZKA BOGUCICE
+            53: time(6, 30), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            54: time(6, 35), # KRAKÓW BIEŻANÓW
+            55: time(6, 40), # KRAKÓW PROKOCIM
+            56: time(6, 45), # KRAKÓW PŁASZÓW
+            22: time(6, 50), # KRAKÓW ZABŁOCIE
+            23: time(6, 55), # KRAKÓW GRZEGÓRZKI
+            24: time(7, 0),  # KRAKÓW GŁÓWNY
+            25: time(7, 5),  # KRAKÓW ŁOBZÓW
+            26: time(7, 10), # KRAKÓW BRONOWICE
+            57: time(7, 15), # KRAKÓW MŁYNÓWKA
+            58: time(7, 20), # KRAKÓW ZAKLIKI
+            59: time(7, 25), # KRAKÓW OLSZANICA
+            43: time(7, 30), # KRAKÓW LOTNISKO
+        }
+    ),
+    21: Schedule(
+        id=21,
+        stop_to_time={
+            50: time(8, 15), # WIELICZKA RYNEK-KOPALNIA
+            51: time(8, 20), # WIELICZKA PARK
+            52: time(8, 25), # WIELICZKA BOGUCICE
+            53: time(8, 30), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            54: time(8, 35), # KRAKÓW BIEŻANÓW
+            55: time(8, 40), # KRAKÓW PROKOCIM
+            56: time(8, 45), # KRAKÓW PŁASZÓW
+            22: time(8, 50), # KRAKÓW ZABŁOCIE
+            23: time(8, 55), # KRAKÓW GRZEGÓRZKI
+            24: time(9, 0),  # KRAKÓW GŁÓWNY
+            25: time(9, 5),  # KRAKÓW ŁOBZÓW
+            26: time(9, 10), # KRAKÓW BRONOWICE
+            57: time(9, 15), # KRAKÓW MŁYNÓWKA
+            58: time(9, 20), # KRAKÓW ZAKLIKI
+            59: time(9, 25), # KRAKÓW OLSZANICA
+            43: time(9, 30), # KRAKÓW LOTNISKO
+        }
+    ),
+    22: Schedule(
+        id=22,
+        stop_to_time={
+            50: time(10, 15), # WIELICZKA RYNEK-KOPALNIA
+            51: time(10, 20), # WIELICZKA PARK
+            52: time(10, 25), # WIELICZKA BOGUCICE
+            53: time(10, 30), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            54: time(10, 35), # KRAKÓW BIEŻANÓW
+            55: time(10, 40), # KRAKÓW PROKOCIM
+            56: time(10, 45), # KRAKÓW PŁASZÓW
+            22: time(10, 50), # KRAKÓW ZABŁOCIE
+            23: time(10, 55), # KRAKÓW GRZEGÓRZKI
+            24: time(11, 0),  # KRAKÓW GŁÓWNY
+            25: time(11, 5),  # KRAKÓW ŁOBZÓW
+            26: time(11, 10), # KRAKÓW BRONOWICE
+            57: time(11, 15), # KRAKÓW MŁYNÓWKA
+            58: time(11, 20), # KRAKÓW ZAKLIKI
+            59: time(11, 25), # KRAKÓW OLSZANICA
+            43: time(11, 30), # KRAKÓW LOTNISKO
+        }
+    ),
+    23: Schedule(
+        id=23,
+        stop_to_time={
+            50: time(12, 15), # WIELICZKA RYNEK-KOPALNIA
+            51: time(12, 20), # WIELICZKA PARK
+            52: time(12, 25), # WIELICZKA BOGUCICE
+            53: time(12, 30), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            54: time(12, 35), # KRAKÓW BIEŻANÓW
+            55: time(12, 40), # KRAKÓW PROKOCIM
+            56: time(12, 45), # KRAKÓW PŁASZÓW
+            22: time(12, 50), # KRAKÓW ZABŁOCIE
+            23: time(12, 55), # KRAKÓW GRZEGÓRZKI
+            24: time(13, 0),  # KRAKÓW GŁÓWNY
+            25: time(13, 5),  # KRAKÓW ŁOBZÓW
+            26: time(13, 10), # KRAKÓW BRONOWICE
+            57: time(13, 15), # KRAKÓW MŁYNÓWKA
+            58: time(13, 20), # KRAKÓW ZAKLIKI
+            59: time(13, 25), # KRAKÓW OLSZANICA
+            43: time(13, 30), # KRAKÓW LOTNISKO
+        }
+    ),
+    24: Schedule(
+        id=24,
+        stop_to_time={
+            50: time(14, 15), # WIELICZKA RYNEK-KOPALNIA
+            51: time(14, 20), # WIELICZKA PARK
+            52: time(14, 25), # WIELICZKA BOGUCICE
+            53: time(14, 30), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            54: time(14, 35), # KRAKÓW BIEŻANÓW
+            55: time(14, 40), # KRAKÓW PROKOCIM
+            56: time(14, 45), # KRAKÓW PŁASZÓW
+            22: time(14, 50), # KRAKÓW ZABŁOCIE
+            23: time(14, 55), # KRAKÓW GRZEGÓRZKI
+            24: time(15, 0),  # KRAKÓW GŁÓWNY
+            25: time(15, 5),  # KRAKÓW ŁOBZÓW
+            26: time(15, 10), # KRAKÓW BRONOWICE
+            57: time(15, 15), # KRAKÓW MŁYNÓWKA
+            58: time(15, 20), # KRAKÓW ZAKLIKI
+            59: time(15, 25), # KRAKÓW OLSZANICA
+            43: time(15, 30), # KRAKÓW LOTNISKO
+        }
+    ),
+    
+    # Linia 4: KRAKÓW OPATKOWICE → WIELICZKA (5 harmonogramów)
+    30: Schedule(
+        id=30,
+        stop_to_time={
+            20: time(6, 45), # KRAKÓW OPATKOWICE
+            21: time(6, 50), # KRAKÓW SWOSZOWICE
+            56: time(6, 55), # KRAKÓW PŁASZÓW
+            55: time(7, 0),  # KRAKÓW PROKOCIM
+            54: time(7, 5),  # KRAKÓW BIEŻANÓW
+            53: time(7, 10), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            52: time(7, 15), # WIELICZKA BOGUCICE
+            51: time(7, 20), # WIELICZKA PARK
+            50: time(7, 25), # WIELICZKA RYNEK-KOPALNIA
+        }
+    ),
+    31: Schedule(
+        id=31,
+        stop_to_time={
+            20: time(8, 45), # KRAKÓW OPATKOWICE
+            21: time(8, 50), # KRAKÓW SWOSZOWICE
+            56: time(8, 55), # KRAKÓW PŁASZÓW
+            55: time(9, 0),  # KRAKÓW PROKOCIM
+            54: time(9, 5),  # KRAKÓW BIEŻANÓW
+            53: time(9, 10), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            52: time(9, 15), # WIELICZKA BOGUCICE
+            51: time(9, 20), # WIELICZKA PARK
+            50: time(9, 25), # WIELICZKA RYNEK-KOPALNIA
+        }
+    ),
+    32: Schedule(
+        id=32,
+        stop_to_time={
+            20: time(10, 45), # KRAKÓW OPATKOWICE
+            21: time(10, 50), # KRAKÓW SWOSZOWICE
+            56: time(10, 55), # KRAKÓW PŁASZÓW
+            55: time(11, 0),  # KRAKÓW PROKOCIM
+            54: time(11, 5),  # KRAKÓW BIEŻANÓW
+            53: time(11, 10), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            52: time(11, 15), # WIELICZKA BOGUCICE
+            51: time(11, 20), # WIELICZKA PARK
+            50: time(11, 25), # WIELICZKA RYNEK-KOPALNIA
+        }
+    ),
+    33: Schedule(
+        id=33,
+        stop_to_time={
+            20: time(12, 45), # KRAKÓW OPATKOWICE
+            21: time(12, 50), # KRAKÓW SWOSZOWICE
+            56: time(12, 55), # KRAKÓW PŁASZÓW
+            55: time(13, 0),  # KRAKÓW PROKOCIM
+            54: time(13, 5),  # KRAKÓW BIEŻANÓW
+            53: time(13, 10), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            52: time(13, 15), # WIELICZKA BOGUCICE
+            51: time(13, 20), # WIELICZKA PARK
+            50: time(13, 25), # WIELICZKA RYNEK-KOPALNIA
+        }
+    ),
+    34: Schedule(
+        id=34,
+        stop_to_time={
+            20: time(14, 45), # KRAKÓW OPATKOWICE
+            21: time(14, 50), # KRAKÓW SWOSZOWICE
+            56: time(14, 55), # KRAKÓW PŁASZÓW
+            55: time(15, 0),  # KRAKÓW PROKOCIM
+            54: time(15, 5),  # KRAKÓW BIEŻANÓW
+            53: time(15, 10), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            52: time(15, 15), # WIELICZKA BOGUCICE
+            51: time(15, 20), # WIELICZKA PARK
+            50: time(15, 25), # WIELICZKA RYNEK-KOPALNIA
+        }
+    ),
+    
+    # Linia 1: Kraków Bronowice → Oświęcim (5 harmonogramów w drugą stronę)
+    6: Schedule(
+        id=6,
+        stop_to_time={
+            26: time(6, 0),  # KRAKÓW BRONOWICE
+            25: time(6, 5),  # KRAKÓW ŁOBZÓW
+            24: time(6, 10), # KRAKÓW GŁÓWNY
+            23: time(6, 15), # KRAKÓW GRZEGÓRZKI
+            22: time(6, 20), # KRAKÓW ZABŁOCIE
+            21: time(6, 25), # KRAKÓW SWOSZOWICE
+            20: time(6, 30), # KRAKÓW OPATKOWICE
+            19: time(6, 35), # KRAKÓW SIDZINA
+            18: time(6, 40), # SKAWINA JAGIELNIA
+            17: time(6, 45), # SKAWINA
+            16: time(6, 50), # SKAWINA ZACHODNIA
+            15: time(6, 55), # PODBORY SKAWIŃSKIE
+            14: time(7, 0),  # ZELCZYNA
+            13: time(7, 5),  # WIELKIE DROGI
+            12: time(7, 10), # JAŚKOWICE
+            11: time(7, 15), # BRZEŹNICA
+            10: time(7, 20), # PÓŁWIEŚ
+            9: time(7, 25),  # RYCZÓW
+            8: time(7, 30),  # SPYTKOWICE KĘPKI
+            7: time(7, 35),  # SPYTKOWICE
+            6: time(7, 40),  # ZATOR
+            5: time(7, 45),  # ZATOR PARK ROZRYWKI
+            4: time(7, 50),  # PRZECISZÓW
+            3: time(7, 55),  # WŁOSIENICA
+            2: time(8, 0),   # DWORY
+            1: time(8, 5),   # OŚWIĘCIM
+        }
+    ),
+    7: Schedule(
+        id=7,
+        stop_to_time={
+            26: time(8, 0),  # KRAKÓW BRONOWICE
+            25: time(8, 5),  # KRAKÓW ŁOBZÓW
+            24: time(8, 10), # KRAKÓW GŁÓWNY
+            23: time(8, 15), # KRAKÓW GRZEGÓRZKI
+            22: time(8, 20), # KRAKÓW ZABŁOCIE
+            21: time(8, 25), # KRAKÓW SWOSZOWICE
+            20: time(8, 30), # KRAKÓW OPATKOWICE
+            19: time(8, 35), # KRAKÓW SIDZINA
+            18: time(8, 40), # SKAWINA JAGIELNIA
+            17: time(8, 45), # SKAWINA
+            16: time(8, 50), # SKAWINA ZACHODNIA
+            15: time(8, 55), # PODBORY SKAWIŃSKIE
+            14: time(9, 0),  # ZELCZYNA
+            13: time(9, 5),  # WIELKIE DROGI
+            12: time(9, 10), # JAŚKOWICE
+            11: time(9, 15), # BRZEŹNICA
+            10: time(9, 20), # PÓŁWIEŚ
+            9: time(9, 25),  # RYCZÓW
+            8: time(9, 30),  # SPYTKOWICE KĘPKI
+            7: time(9, 35),  # SPYTKOWICE
+            6: time(9, 40),  # ZATOR
+            5: time(9, 45),  # ZATOR PARK ROZRYWKI
+            4: time(9, 50),  # PRZECISZÓW
+            3: time(9, 55),  # WŁOSIENICA
+            2: time(10, 0),  # DWORY
+            1: time(10, 5),  # OŚWIĘCIM
+        }
+    ),
+    8: Schedule(
+        id=8,
+        stop_to_time={
+            26: time(10, 0), # KRAKÓW BRONOWICE
+            25: time(10, 5), # KRAKÓW ŁOBZÓW
+            24: time(10, 10), # KRAKÓW GŁÓWNY
+            23: time(10, 15), # KRAKÓW GRZEGÓRZKI
+            22: time(10, 20), # KRAKÓW ZABŁOCIE
+            21: time(10, 25), # KRAKÓW SWOSZOWICE
+            20: time(10, 30), # KRAKÓW OPATKOWICE
+            19: time(10, 35), # KRAKÓW SIDZINA
+            18: time(10, 40), # SKAWINA JAGIELNIA
+            17: time(10, 45), # SKAWINA
+            16: time(10, 50), # SKAWINA ZACHODNIA
+            15: time(10, 55), # PODBORY SKAWIŃSKIE
+            14: time(11, 0),  # ZELCZYNA
+            13: time(11, 5),  # WIELKIE DROGI
+            12: time(11, 10), # JAŚKOWICE
+            11: time(11, 15), # BRZEŹNICA
+            10: time(11, 20), # PÓŁWIEŚ
+            9: time(11, 25),  # RYCZÓW
+            8: time(11, 30),  # SPYTKOWICE KĘPKI
+            7: time(11, 35),  # SPYTKOWICE
+            6: time(11, 40),  # ZATOR
+            5: time(11, 45),  # ZATOR PARK ROZRYWKI
+            4: time(11, 50),  # PRZECISZÓW
+            3: time(11, 55),  # WŁOSIENICA
+            2: time(12, 0),   # DWORY
+            1: time(12, 5),   # OŚWIĘCIM
+        }
+    ),
+    9: Schedule(
+        id=9,
+        stop_to_time={
+            26: time(12, 0), # KRAKÓW BRONOWICE
+            25: time(12, 5), # KRAKÓW ŁOBZÓW
+            24: time(12, 10), # KRAKÓW GŁÓWNY
+            23: time(12, 15), # KRAKÓW GRZEGÓRZKI
+            22: time(12, 20), # KRAKÓW ZABŁOCIE
+            21: time(12, 25), # KRAKÓW SWOSZOWICE
+            20: time(12, 30), # KRAKÓW OPATKOWICE
+            19: time(12, 35), # KRAKÓW SIDZINA
+            18: time(12, 40), # SKAWINA JAGIELNIA
+            17: time(12, 45), # SKAWINA
+            16: time(12, 50), # SKAWINA ZACHODNIA
+            15: time(12, 55), # PODBORY SKAWIŃSKIE
+            14: time(13, 0),  # ZELCZYNA
+            13: time(13, 5),  # WIELKIE DROGI
+            12: time(13, 10), # JAŚKOWICE
+            11: time(13, 15), # BRZEŹNICA
+            10: time(13, 20), # PÓŁWIEŚ
+            9: time(13, 25),  # RYCZÓW
+            8: time(13, 30),  # SPYTKOWICE KĘPKI
+            7: time(13, 35),  # SPYTKOWICE
+            6: time(13, 40),  # ZATOR
+            5: time(13, 45),  # ZATOR PARK ROZRYWKI
+            4: time(13, 50),  # PRZECISZÓW
+            3: time(13, 55),  # WŁOSIENICA
+            2: time(14, 0),   # DWORY
+            1: time(14, 5),   # OŚWIĘCIM
+        }
+    ),
+    
+    # Linia 2: Kraków Lotnisko → Miechów (5 harmonogramów w drugą stronę)
+    15: Schedule(
+        id=15,
+        stop_to_time={
+            43: time(6, 30), # KRAKÓW LOTNISKO
+            26: time(6, 35), # KRAKÓW BRONOWICE
+            25: time(6, 40), # KRAKÓW ŁOBZÓW
+            24: time(6, 45), # KRAKÓW GŁÓWNY
+            23: time(6, 50), # KRAKÓW GRZEGÓRZKI
+            22: time(6, 55), # KRAKÓW ZABŁOCIE
+            42: time(7, 0),  # KRAKÓW BATOWICE
+            41: time(7, 5),  # KRAKÓW PIASTÓW
+            40: time(7, 10), # ZASTÓW
+            39: time(7, 15), # BARANÓWKA
+            38: time(7, 20), # ŁUCZYCE
+            37: time(7, 25), # GOSZCZA
+            36: time(7, 30), # NIEDŹWIEDŹ
+            35: time(7, 35), # SŁOMNIKI MIASTO
+            34: time(7, 40), # SŁOMNIKI
+            33: time(7, 45), # SMROKÓW
+            32: time(7, 50), # SZCZEPANOWICE
+            31: time(7, 55), # KAMIEŃCZYCE
+            30: time(8, 0),  # MIECHÓW
+        }
+    ),
+    16: Schedule(
+        id=16,
+        stop_to_time={
+            43: time(8, 30), # KRAKÓW LOTNISKO
+            26: time(8, 35), # KRAKÓW BRONOWICE
+            25: time(8, 40), # KRAKÓW ŁOBZÓW
+            24: time(8, 45), # KRAKÓW GŁÓWNY
+            23: time(8, 50), # KRAKÓW GRZEGÓRZKI
+            22: time(8, 55), # KRAKÓW ZABŁOCIE
+            42: time(9, 0),  # KRAKÓW BATOWICE
+            41: time(9, 5),  # KRAKÓW PIASTÓW
+            40: time(9, 10), # ZASTÓW
+            39: time(9, 15), # BARANÓWKA
+            38: time(9, 20), # ŁUCZYCE
+            37: time(9, 25), # GOSZCZA
+            36: time(9, 30), # NIEDŹWIEDŹ
+            35: time(9, 35), # SŁOMNIKI MIASTO
+            34: time(9, 40), # SŁOMNIKI
+            33: time(9, 45), # SMROKÓW
+            32: time(9, 50), # SZCZEPANOWICE
+            31: time(9, 55), # KAMIEŃCZYCE
+            30: time(10, 0), # MIECHÓW
+        }
+    ),
+    17: Schedule(
+        id=17,
+        stop_to_time={
+            43: time(10, 30), # KRAKÓW LOTNISKO
+            26: time(10, 35), # KRAKÓW BRONOWICE
+            25: time(10, 40), # KRAKÓW ŁOBZÓW
+            24: time(10, 45), # KRAKÓW GŁÓWNY
+            23: time(10, 50), # KRAKÓW GRZEGÓRZKI
+            22: time(10, 55), # KRAKÓW ZABŁOCIE
+            42: time(11, 0),  # KRAKÓW BATOWICE
+            41: time(11, 5),  # KRAKÓW PIASTÓW
+            40: time(11, 10), # ZASTÓW
+            39: time(11, 15), # BARANÓWKA
+            38: time(11, 20), # ŁUCZYCE
+            37: time(11, 25), # GOSZCZA
+            36: time(11, 30), # NIEDŹWIEDŹ
+            35: time(11, 35), # SŁOMNIKI MIASTO
+            34: time(11, 40), # SŁOMNIKI
+            33: time(11, 45), # SMROKÓW
+            32: time(11, 50), # SZCZEPANOWICE
+            31: time(11, 55), # KAMIEŃCZYCE
+            30: time(12, 0),  # MIECHÓW
+        }
+    ),
+    18: Schedule(
+        id=18,
+        stop_to_time={
+            43: time(12, 30), # KRAKÓW LOTNISKO
+            26: time(12, 35), # KRAKÓW BRONOWICE
+            25: time(12, 40), # KRAKÓW ŁOBZÓW
+            24: time(12, 45), # KRAKÓW GŁÓWNY
+            23: time(12, 50), # KRAKÓW GRZEGÓRZKI
+            22: time(12, 55), # KRAKÓW ZABŁOCIE
+            42: time(13, 0),  # KRAKÓW BATOWICE
+            41: time(13, 5),  # KRAKÓW PIASTÓW
+            40: time(13, 10), # ZASTÓW
+            39: time(13, 15), # BARANÓWKA
+            38: time(13, 20), # ŁUCZYCE
+            37: time(13, 25), # GOSZCZA
+            36: time(13, 30), # NIEDŹWIEDŹ
+            35: time(13, 35), # SŁOMNIKI MIASTO
+            34: time(13, 40), # SŁOMNIKI
+            33: time(13, 45), # SMROKÓW
+            32: time(13, 50), # SZCZEPANOWICE
+            31: time(13, 55), # KAMIEŃCZYCE
+            30: time(14, 0),  # MIECHÓW
+        }
+    ),
+    19: Schedule(
+        id=19,
+        stop_to_time={
+            43: time(14, 30), # KRAKÓW LOTNISKO
+            26: time(14, 35), # KRAKÓW BRONOWICE
+            25: time(14, 40), # KRAKÓW ŁOBZÓW
+            24: time(14, 45), # KRAKÓW GŁÓWNY
+            23: time(14, 50), # KRAKÓW GRZEGÓRZKI
+            22: time(14, 55), # KRAKÓW ZABŁOCIE
+            42: time(15, 0),  # KRAKÓW BATOWICE
+            41: time(15, 5),  # KRAKÓW PIASTÓW
+            40: time(15, 10), # ZASTÓW
+            39: time(15, 15), # BARANÓWKA
+            38: time(15, 20), # ŁUCZYCE
+            37: time(15, 25), # GOSZCZA
+            36: time(15, 30), # NIEDŹWIEDŹ
+            35: time(15, 35), # SŁOMNIKI MIASTO
+            34: time(15, 40), # SŁOMNIKI
+            33: time(15, 45), # SMROKÓW
+            32: time(15, 50), # SZCZEPANOWICE
+            31: time(15, 55), # KAMIEŃCZYCE
+            30: time(16, 0),  # MIECHÓW
+        }
+    ),
+    
+    # Linia 3: Kraków Lotnisko → Wieliczka (5 harmonogramów w drugą stronę)
+    25: Schedule(
+        id=25,
+        stop_to_time={
+            43: time(6, 15), # KRAKÓW LOTNISKO
+            59: time(6, 20), # KRAKÓW OLSZANICA
+            58: time(6, 25), # KRAKÓW ZAKLIKI
+            57: time(6, 30), # KRAKÓW MŁYNÓWKA
+            26: time(6, 35), # KRAKÓW BRONOWICE
+            25: time(6, 40), # KRAKÓW ŁOBZÓW
+            24: time(6, 45), # KRAKÓW GŁÓWNY
+            23: time(6, 50), # KRAKÓW GRZEGÓRZKI
+            22: time(6, 55), # KRAKÓW ZABŁOCIE
+            56: time(7, 0),  # KRAKÓW PŁASZÓW
+            55: time(7, 5),  # KRAKÓW PROKOCIM
+            54: time(7, 10), # KRAKÓW BIEŻANÓW
+            53: time(7, 15), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            52: time(7, 20), # WIELICZKA BOGUCICE
+            51: time(7, 25), # WIELICZKA PARK
+            50: time(7, 30), # WIELICZKA RYNEK-KOPALNIA
+        }
+    ),
+    26: Schedule(
+        id=26,
+        stop_to_time={
+            43: time(8, 15), # KRAKÓW LOTNISKO
+            59: time(8, 20), # KRAKÓW OLSZANICA
+            58: time(8, 25), # KRAKÓW ZAKLIKI
+            57: time(8, 30), # KRAKÓW MŁYNÓWKA
+            26: time(8, 35), # KRAKÓW BRONOWICE
+            25: time(8, 40), # KRAKÓW ŁOBZÓW
+            24: time(8, 45), # KRAKÓW GŁÓWNY
+            23: time(8, 50), # KRAKÓW GRZEGÓRZKI
+            22: time(8, 55), # KRAKÓW ZABŁOCIE
+            56: time(9, 0),  # KRAKÓW PŁASZÓW
+            55: time(9, 5),  # KRAKÓW PROKOCIM
+            54: time(9, 10), # KRAKÓW BIEŻANÓW
+            53: time(9, 15), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            52: time(9, 20), # WIELICZKA BOGUCICE
+            51: time(9, 25), # WIELICZKA PARK
+            50: time(9, 30), # WIELICZKA RYNEK-KOPALNIA
+        }
+    ),
+    27: Schedule(
+        id=27,
+        stop_to_time={
+            43: time(10, 15), # KRAKÓW LOTNISKO
+            59: time(10, 20), # KRAKÓW OLSZANICA
+            58: time(10, 25), # KRAKÓW ZAKLIKI
+            57: time(10, 30), # KRAKÓW MŁYNÓWKA
+            26: time(10, 35), # KRAKÓW BRONOWICE
+            25: time(10, 40), # KRAKÓW ŁOBZÓW
+            24: time(10, 45), # KRAKÓW GŁÓWNY
+            23: time(10, 50), # KRAKÓW GRZEGÓRZKI
+            22: time(10, 55), # KRAKÓW ZABŁOCIE
+            56: time(11, 0),  # KRAKÓW PŁASZÓW
+            55: time(11, 5),  # KRAKÓW PROKOCIM
+            54: time(11, 10), # KRAKÓW BIEŻANÓW
+            53: time(11, 15), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            52: time(11, 20), # WIELICZKA BOGUCICE
+            51: time(11, 25), # WIELICZKA PARK
+            50: time(11, 30), # WIELICZKA RYNEK-KOPALNIA
+        }
+    ),
+    28: Schedule(
+        id=28,
+        stop_to_time={
+            43: time(12, 15), # KRAKÓW LOTNISKO
+            59: time(12, 20), # KRAKÓW OLSZANICA
+            58: time(12, 25), # KRAKÓW ZAKLIKI
+            57: time(12, 30), # KRAKÓW MŁYNÓWKA
+            26: time(12, 35), # KRAKÓW BRONOWICE
+            25: time(12, 40), # KRAKÓW ŁOBZÓW
+            24: time(12, 45), # KRAKÓW GŁÓWNY
+            23: time(12, 50), # KRAKÓW GRZEGÓRZKI
+            22: time(12, 55), # KRAKÓW ZABŁOCIE
+            56: time(13, 0),  # KRAKÓW PŁASZÓW
+            55: time(13, 5),  # KRAKÓW PROKOCIM
+            54: time(13, 10), # KRAKÓW BIEŻANÓW
+            53: time(13, 15), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            52: time(13, 20), # WIELICZKA BOGUCICE
+            51: time(13, 25), # WIELICZKA PARK
+            50: time(13, 30), # WIELICZKA RYNEK-KOPALNIA
+        }
+    ),
+    29: Schedule(
+        id=29,
+        stop_to_time={
+            43: time(14, 15), # KRAKÓW LOTNISKO
+            59: time(14, 20), # KRAKÓW OLSZANICA
+            58: time(14, 25), # KRAKÓW ZAKLIKI
+            57: time(14, 30), # KRAKÓW MŁYNÓWKA
+            26: time(14, 35), # KRAKÓW BRONOWICE
+            25: time(14, 40), # KRAKÓW ŁOBZÓW
+            24: time(14, 45), # KRAKÓW GŁÓWNY
+            23: time(14, 50), # KRAKÓW GRZEGÓRZKI
+            22: time(14, 55), # KRAKÓW ZABŁOCIE
+            56: time(15, 0),  # KRAKÓW PŁASZÓW
+            55: time(15, 5),  # KRAKÓW PROKOCIM
+            54: time(15, 10), # KRAKÓW BIEŻANÓW
+            53: time(15, 15), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            52: time(15, 20), # WIELICZKA BOGUCICE
+            51: time(15, 25), # WIELICZKA PARK
+            50: time(15, 30), # WIELICZKA RYNEK-KOPALNIA
+        }
+    ),
+    
+    # Linia 4: Wieliczka → KRAKÓW OPATKOWICE (5 harmonogramów w drugą stronę)
+    35: Schedule(
+        id=35,
+        stop_to_time={
+            50: time(6, 45), # WIELICZKA RYNEK-KOPALNIA
+            51: time(6, 50), # WIELICZKA PARK
+            52: time(6, 55), # WIELICZKA BOGUCICE
+            53: time(7, 0),  # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            54: time(7, 5),  # KRAKÓW BIEŻANÓW
+            55: time(7, 10), # KRAKÓW PROKOCIM
+            56: time(7, 15), # KRAKÓW PŁASZÓW
+            21: time(7, 20), # KRAKÓW SWOSZOWICE
+            20: time(7, 25), # KRAKÓW OPATKOWICE
+        }
+    ),
+    36: Schedule(
+        id=36,
+        stop_to_time={
+            50: time(8, 45), # WIELICZKA RYNEK-KOPALNIA
+            51: time(8, 50), # WIELICZKA PARK
+            52: time(8, 55), # WIELICZKA BOGUCICE
+            53: time(9, 0),  # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            54: time(9, 5),  # KRAKÓW BIEŻANÓW
+            55: time(9, 10), # KRAKÓW PROKOCIM
+            56: time(9, 15), # KRAKÓW PŁASZÓW
+            21: time(9, 20), # KRAKÓW SWOSZOWICE
+            20: time(9, 25), # KRAKÓW OPATKOWICE
+        }
+    ),
+    37: Schedule(
+        id=37,
+        stop_to_time={
+            50: time(10, 45), # WIELICZKA RYNEK-KOPALNIA
+            51: time(10, 50), # WIELICZKA PARK
+            52: time(10, 55), # WIELICZKA BOGUCICE
+            53: time(11, 0),  # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            54: time(11, 5),  # KRAKÓW BIEŻANÓW
+            55: time(11, 10), # KRAKÓW PROKOCIM
+            56: time(11, 15), # KRAKÓW PŁASZÓW
+            21: time(11, 20), # KRAKÓW SWOSZOWICE
+            20: time(11, 25), # KRAKÓW OPATKOWICE
+        }
+    ),
+    38: Schedule(
+        id=38,
+        stop_to_time={
+            50: time(12, 45), # WIELICZKA RYNEK-KOPALNIA
+            51: time(12, 50), # WIELICZKA PARK
+            52: time(12, 55), # WIELICZKA BOGUCICE
+            53: time(13, 0),  # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            54: time(13, 5),  # KRAKÓW BIEŻANÓW
+            55: time(13, 10), # KRAKÓW PROKOCIM
+            56: time(13, 15), # KRAKÓW PŁASZÓW
+            21: time(13, 20), # KRAKÓW SWOSZOWICE
+            20: time(13, 25), # KRAKÓW OPATKOWICE
+        }
+    ),
+    39: Schedule(
+        id=39,
+        stop_to_time={
+            50: time(14, 45), # WIELICZKA RYNEK-KOPALNIA
+            51: time(14, 50), # WIELICZKA PARK
+            52: time(14, 55), # WIELICZKA BOGUCICE
+            53: time(15, 0),  # KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+            54: time(15, 5),  # KRAKÓW BIEŻANÓW
+            55: time(15, 10), # KRAKÓW PROKOCIM
+            56: time(15, 15), # KRAKÓW PŁASZÓW
+            21: time(15, 20), # KRAKÓW SWOSZOWICE
+            20: time(15, 25), # KRAKÓW OPATKOWICE
+        }
+    ),
+}
+
 # Tabela Lines - kompletne ranges według CSV
 lines: Dict[int, Line] = {
     1: Line(
         id=1,
         name="Linia Oświęcim - Kraków",
         number="1",
-        edges=[edges[i] for i in range(1, 26)]
+        edges=[edges[i] for i in range(1, 26)],
+        time_table=[schedules[i] for i in range(1, 6)] + [schedules[i] for i in range(6, 10)]  # Oba kierunki
     ),
     2: Line(
         id=2,
         name="Linia Miechów - Kraków Lotnisko",
         number="2",
-        edges=[edges[i] for i in range(30, 48)]
+        edges=[edges[i] for i in range(30, 48)],
+        time_table=[schedules[i] for i in range(10, 15)] + [schedules[i] for i in range(15, 20)]  # Oba kierunki
     ),
     3: Line(
         id=3,
         name="Linia Wieliczka - Kraków Lotnisko",
         number="3",
-        edges=[edges[i] for i in range(50, 65)]
+        edges=[edges[i] for i in range(50, 65)],
+        time_table=[schedules[i] for i in range(20, 25)] + [schedules[i] for i in range(25, 30)]  # Oba kierunki
     ),
     4: Line(
         id=4,
         name="Linia KRAKÓW OPATKOWICE - WIELICZKA",
         number="4",
-        edges=[edges[i] for i in range(70, 78)]
+        edges=[edges[i] for i in range(70, 78)],
+        time_table=[schedules[i] for i in range(30, 35)] + [schedules[i] for i in range(35, 40)]  # Oba kierunki
     ),
 }
 
@@ -315,12 +1207,7 @@ def my_print(lines_dict: Dict[int, Line]):
         
         print(f"   📊 Łącznie: {len(stations_in_order)} przystanków")
 
-def get_all_stops() -> List[Stop]:
-    """Zwraca listę wszystkich przystanków"""
 
-    stops_list = list(stops.values())
-    logging.info(f"Zwracam listę wszystkich przystanków: {stops_list}")
-    return stops_list
 
 notifications: list[Notification] = []
 
