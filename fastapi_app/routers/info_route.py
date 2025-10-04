@@ -309,37 +309,11 @@ async def get_llm_answer(prompt: str) -> str:
 
     Use context from rag_context if needed.
     Kontekst:
-    rag_context = [
-        {
-            "id": "line_1",
-            "text": "Linia 1: Oświęcim → Kraków Bronowice. Przystanki po kolei: OŚWIĘCIM, DWORY, WŁOSIENICA, PRZECISZÓW, ZATOR PARK ROZRYWKI, ZATOR, SPYTKOWICE, SPYTKOWICE KĘPKI, RYCZÓW, PÓŁWIEŚ, BRZEŹNICA, JAŚKOWICE, WIELKIE DROGI, ZELCZYNA, PODBORY SKAWIŃSKIE, SKAWINA ZACHODNIA, SKAWINA, SKAWINA JAGIELNIA, KRAKÓW SIDZINA, KRAKÓW OPATKOWICE, KRAKÓW SWOSZOWICE, KRAKÓW ZABŁOCIE, KRAKÓW GRZEGÓRZKI, KRAKÓW GŁÓWNY, KRAKÓW ŁOBZÓW, KRAKÓW BRONOWICE."
-        },
-        {
-            "id": "line_2",
-            "text": "Linia 2: Miechów → Kraków Lotnisko. Przystanki po kolei: MIECHÓW, KAMIEŃCZYCE, SZCZEPANOWICE, SMROKÓW, SŁOMNIKI, SŁOMNIKI MIASTO, NIEDŹWIEDŹ, GOSZCZA, ŁUCZYCE, BARANÓWKA, ZASTÓW, KRAKÓW PIASTÓW, KRAKÓW BATOWICE, KRAKÓW ZABŁOCIE, KRAKÓW GRZEGÓRZKI, KRAKÓW GŁÓWNY, KRAKÓW ŁOBZÓW, KRAKÓW BRONOWICE, KRAKÓW LOTNISKO."
-        },
-        {
-            "id": "event_1",
-            "text": "Opóźnienie pociągu na KRAKÓW ZABŁOCIE (edge 22), zgłoszone 2024-01-15 14:30. Opóźnienie wynosi 30 minut. Typ: DELAY. Źródło: system."
-        },
-        {
-            "id": "event_2",
-            "text": "Prace konserwacyjne na KRAKÓW GŁÓWNY (edge 23), zgłoszone 2024-01-15 16:45. Typ: TECHNICAL_ISSUE. Źródło: admin."
-        },
-        {
-            "id": "event_3",
-            "text": "Odwołany kurs na KRAKÓW BRONOWICE (edge 25), zgłoszone 2024-01-15 10:15. Typ: CANCELLATION. Źródło: system."
-        },
-        {
-            "id": "user_levels",
-            "text": "Użytkownicy i poziomy zaufania: Jan Kowalski 15, Anna Nowak 8, Piotr Wiśniewski 0, Maria Kowalczyk 25, Tomasz Lewandowski -3, Katarzyna Zielińska 50, Michał Dąbrowski 120, Agnieszka Wójcik 250, Robert Kamiński 600, Magdalena Krawczyk -15, Paweł Szymański -30, Joanna Woźniak 3."
-        },
-        {
-            "id": "general_context",
-            "text": "Opóźnienia i utrudnienia w transporcie publicznym to codzienność pasażerów. Informacje o nich docierają czasem z opóźnieniem i są fragmentaryczne. Współczesne systemy pozwalają gromadzić dane w czasie rzeczywistym, ale kluczowa jest ich integracja i szybkie przekazywanie pasażerom, aby mogli podejmować lepsze decyzje o trasie i uniknąć spóźnień."
-        }
-    ]
-    """
+    rag_context = {events}
+    lines = {lines}
+    stops = {stops}
+    trains = {trains}
+"""
 
     response = OpenAI.chat.completions.create(
         model="gemma3",
