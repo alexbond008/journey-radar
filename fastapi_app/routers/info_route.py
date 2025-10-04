@@ -3,6 +3,7 @@ from typing import List, Optional
 from datetime import datetime
 import uuid
 from models.database_models import Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng
+from db.dicts import stops, routes
 
 router = APIRouter(prefix="/info", tags=["info"])
 
@@ -39,18 +40,18 @@ EVENTS_STORAGE = [
 @router.get("/get_stops", response_model=List[Stop])
 async def get_all_stops():
     """Get all bus stops from CSV data"""
-    return REAL_STOPS
+    return list(stops.values())
 
 @router.get("/get_routes", response_model=List[Route])
 async def get_all_routes():
     """Get all bus routes from CSV data"""
-    return REAL_ROUTES
+    return list(routes.values())
 
 @router.get("/get_stops_for_route", response_model=List[Stop])
 async def get_stops_for_route(route_id: str = Query(..., description="Route ID")):
     """Get all bus stops for a specific route"""
     # Find the route
-    route = next((r for r in REAL_ROUTES if r.id == route_id), None)
+    route = next((r for r in routes.values() if r.id == route_id), None)
     if not route:
         raise HTTPException(status_code=404, detail=f"Route with ID {route_id} not found")
     
@@ -112,7 +113,7 @@ async def get_events(
 async def get_events_for_route(route_id: str):
     """Get all events for a specific route"""
     # Validate route exists
-    route = next((r for r in REAL_ROUTES if r.id == route_id), None)
+    route = next((r for r in routes.values() if r.id == route_id), None)
     if not route:
         raise HTTPException(status_code=404, detail=f"Route with ID {route_id} not found")
     
@@ -125,7 +126,7 @@ async def get_events_for_route(route_id: str):
 @router.get("/get_route_info/{route_id}", response_model=Route)
 async def get_route_info(route_id: str):
     """Get detailed information about a specific route including its stops"""
-    route = next((r for r in REAL_ROUTES if r.id == route_id), None)
+    route = next((r for r in routes.values() if r.id == route_id), None)
     if not route:
         raise HTTPException(status_code=404, detail=f"Route with ID {route_id} not found")
     
@@ -134,7 +135,7 @@ async def get_route_info(route_id: str):
 @router.get("/get_stop_info/{stop_id}", response_model=Stop)
 async def get_stop_info(stop_id: str):
     """Get detailed information about a specific bus stop"""
-    stop = next((s for s in REAL_STOPS if s.id == stop_id), None)
+    stop = next((s for s in stops.values() if s.id == stop_id), None)
     if not stop:
         raise HTTPException(status_code=404, detail=f"Bus stop with ID {stop_id} not found")
     
@@ -144,7 +145,7 @@ async def get_stop_info(stop_id: str):
 async def get_routes_for_stop(stop_id: str):
     """Get all routes that pass through a specific stop"""
     # Find routes that include this stop
-    routes = [r for r in REAL_ROUTES if any(stop.id == stop_id for stop in r.stops)]
+    routes = [r for r in routes.values() if any(stop.id == stop_id for stop in r.stops)]
     
     if not routes:
         raise HTTPException(status_code=404, detail=f"No routes found for stop ID {stop_id}")
@@ -183,8 +184,8 @@ async def resolve_event(event_id: str):
 async def get_stats():
     """Get basic statistics about routes, stops, and events"""
     return {
-        "total_routes": len(REAL_ROUTES),
-        "total_stops": len(REAL_STOPS),
+        "total_routes": len(routes),
+        "total_stops": len(stops),
         "total_events": len(EVENTS_STORAGE),
         "resolved_events": len([e for e in EVENTS_STORAGE if e.isResolved]),
         "unresolved_events": len([e for e in EVENTS_STORAGE if not e.isResolved]),
@@ -194,19 +195,19 @@ async def get_stats():
         },
         "total_upvotes": sum(e.upvotes for e in EVENTS_STORAGE),
         "total_downvotes": sum(e.downvotes for e in EVENTS_STORAGE),
-        "csv_data_loaded": len(REAL_STOPS) > 0 and len(REAL_ROUTES) > 0
+        "csv_data_loaded": len(stops) > 0 and len(routes) > 0
     }
 
 @router.get("/lines")
 async def get_all_lines():
     """Get all available line numbers from CSV data"""
-    return [route.number for route in REAL_ROUTES]
+    return [route.number for route in routes.values()]
 
 @router.get("/stops_by_name/{stop_name}")
 async def get_stops_by_name(stop_name: str):
     """Find stops by name (case-insensitive partial match)"""
     matching_stops = [
-        stop for stop in REAL_STOPS 
+        stop for stop in stops.values()
         if stop_name.lower() in stop.name.lower()
     ]
     
@@ -218,7 +219,7 @@ async def get_stops_by_name(stop_name: str):
 @router.get("/route_by_number/{line_number}")
 async def get_route_by_number(line_number: str):
     """Get route information by line number"""
-    route = next((r for r in REAL_ROUTES if r.number == line_number), None)
+    route = next((r for r in routes.values() if r.number == line_number), None)
     if not route:
         raise HTTPException(status_code=404, detail=f"Line {line_number} not found")
     
