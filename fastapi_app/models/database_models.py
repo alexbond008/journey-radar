@@ -84,8 +84,8 @@ class Line(BaseModel):
     id: int
     name: str
     number: Optional[str] = None
-    edges: list[Edge]
-    time_table: List[Schedule]   
+    edges: Optional[list[Edge]] = None
+    time_table: Optional[List[Schedule]] = None
     stops: Optional[List[Stop]] = None
 
 
