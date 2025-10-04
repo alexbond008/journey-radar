@@ -75,7 +75,6 @@ class Train(BaseModel):
     id: int
     line_id: int
     current_edge: int  # Edge ID
-    position: float    # Position on current edge (0.0 to 1.0)
 
 
 class User(BaseModel):
