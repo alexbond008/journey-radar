@@ -4,14 +4,14 @@ from datetime import datetime
 import uuid
 from models.database_models import Line, LineResponse, Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng, Notification
 import db.dicts
-from db.dicts import stops, lines, notifications
+from db.dicts import stops, lines, notifications, edges, users, trains
 from repositiories.route_finding import find_nearest_edge
 from repositiories.user_repository import update_user_level
 
 router = APIRouter(prefix="/info", tags=["info"])
 
 # Events storage (in production this would be a database)
-EVENTS_STORAGE = []
+EVENTS_STORAGE: List[Event] = []
 
 def notify_user(user_id: str, message: str):
     notifications.append(Notification(user_id=user_id, message=message, timestamp=datetime.now()))
@@ -24,8 +24,37 @@ async def get_all_stops():
 
 @router.get("/get_lines", response_model=List[Line])
 async def get_all_lines():
-    """Get all bus routes from CSV data"""
-    return list(lines.values())
+    """Get all bus routes from CSV data with stops populated"""
+    result = []
+    for line in lines.values():
+        # Extract stops from edges
+        if line.edges:
+            line_stops = []
+            # Add first stop (from_stop of first edge)
+            first_edge = line.edges[0]
+            first_stop = stops.get(first_edge.from_stop)
+            if first_stop:
+                line_stops.append(first_stop)
+            
+            # Add all to_stops
+            for edge in line.edges:
+                to_stop = stops.get(edge.to_stop)
+                if to_stop:
+                    line_stops.append(to_stop)
+            
+            # Create line with stops populated
+            line_with_stops = Line(
+                id=line.id,
+                name=line.name,
+                number=line.number if line.number else str(line.id),
+                edges=line.edges,
+                stops=line_stops
+            )
+            result.append(line_with_stops)
+        else:
+            result.append(line)
+    
+    return result
 
 @router.get("/get_stops_for_line", response_model=List[Stop])
 async def get_stops_for_line(line_id: str = Query(..., description="Line ID")):
@@ -58,6 +87,7 @@ async def report_event(event_data: EventCreate):
     """Report a new event for a route"""
 
     edge_id = find_nearest_edge(event_data.location, stops)
+
     
     # Create new event
     new_event = Event(
@@ -76,6 +106,19 @@ async def report_event(event_data: EventCreate):
     
     # Add to events storage
     EVENTS_STORAGE.append(new_event)
+
+    edge = edges[edge_id]
+    # todo maybe later
+    # all_events_on_edge_with_type = [e for e in EVENTS_STORAGE if 
+    #                                 e.edge_affected == edge_id and 
+    #                                 e.type == event_data.type 
+    #                                 and not e.isResolved]
+    
+    for user in users.values():
+        train = trains[user.current_train_id]
+        line = lines[train.line_id]
+        if edge in line.edges:
+            notify_user(user.id, f"New event reported on your route {line.name}: {event_data.title}")
     
     return new_event
 
@@ -151,8 +194,14 @@ async def get_lines_for_stop(stop_id: str):
 @router.post("/vote_event", response_model=Event)
 async def vote_event(vote_data: EventVote):
     """Vote on an event (upvote or downvote)"""
+    # Convert string eventId to int for comparison
+    try:
+        event_id_int = int(vote_data.eventId)
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Invalid event ID: {vote_data.eventId}")
+    
     # Find the event
-    event = next((e for e in EVENTS_STORAGE if e.id == vote_data.eventId), None)
+    event = next((e for e in EVENTS_STORAGE if e.id == event_id_int), None)
     if not event:
         raise HTTPException(status_code=404, detail=f"Event with ID {vote_data.eventId} not found")
     
@@ -171,7 +220,13 @@ async def vote_event(vote_data: EventVote):
 @router.patch("/resolve_event/{event_id}", response_model=Event)
 async def resolve_event(event_id: str):
     """Mark an event as resolved"""
-    event = next((e for e in EVENTS_STORAGE if e.id == event_id), None)
+    # Convert string event_id to int for comparison
+    try:
+        event_id_int = int(event_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Invalid event ID: {event_id}")
+    
+    event = next((e for e in EVENTS_STORAGE if e.id == event_id_int), None)
     if not event:
         raise HTTPException(status_code=404, detail=f"Event with ID {event_id} not found")
     
@@ -197,9 +252,9 @@ async def get_stats():
     }
 
 @router.get("/lines")
-async def get_all_lines():
+async def get_all_line_numbers():
     """Get all available line numbers from CSV data"""
-    return [line.number for line in lines.values()]
+    return [line.number if line.number else str(line.id) for line in lines.values()]
 
 @router.get("/stops_by_name/{stop_name}")
 async def get_stops_by_name(stop_name: str):

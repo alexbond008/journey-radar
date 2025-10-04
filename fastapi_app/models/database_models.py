@@ -55,8 +55,8 @@ class EventCreate(BaseModel):
     reportedBy: str
 
 class EventVote(BaseModel):
-    eventid: int
-    userid: int
+    eventId: str
+    userId: str
     voteType: str  # "upvote" or "downvote"
 
 class Edge(BaseModel):
@@ -73,7 +73,9 @@ class LineResponse(BaseModel):
 class Line(BaseModel):
     id: int
     name: str
+    number: Optional[str] = None
     edges: list[Edge]
+    stops: Optional[List[Stop]] = None
 
 
 class Train(BaseModel):

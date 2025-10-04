@@ -163,21 +163,25 @@ lines: Dict[int, Line] = {
     1: Line(
         id=1,
         name="Linia Oświęcim - Kraków",
+        number="1",
         edges=[edges[i] for i in range(1, 26)]
     ),
     2: Line(
         id=2,
         name="Linia Miechów - Kraków Lotnisko",
+        number="2",
         edges=[edges[i] for i in range(30, 48)]
     ),
     3: Line(
         id=3,
         name="Linia Wieliczka - Kraków Lotnisko",
+        number="3",
         edges=[edges[i] for i in range(50, 65)]
     ),
     4: Line(
         id=4,
         name="Linia KRAKÓW OPATKOWICE - WIELICZKA",
+        number="4",
         edges=[edges[i] for i in range(70, 78)]
     ),
 }

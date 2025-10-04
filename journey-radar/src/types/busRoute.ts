@@ -6,7 +6,7 @@ export interface BusRoute {
   number: string;
   description?: string;
   stops: Stop[];
-  polyline: [number, number][];  // Array of [lat, lng] coordinates
+  polyline?: [number, number][];  // Array of [lat, lng] coordinates (optional, can be generated from stops)
   estimatedDuration?: number;
   activeIncidentIds?: string[];
 }
