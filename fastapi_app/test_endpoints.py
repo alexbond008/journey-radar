@@ -159,8 +159,8 @@ async def test_info_endpoints():
         # Test vote on event
         print("\n13. Testing POST /info/vote_event")
         vote_data = {
-            "eventId": "event_001",
-            "userId": "test_user_456",
+            "eventId": 1,
+            "userId": 456,
             "voteType": "upvote"
         }
         response = await client.post(f"{BASE_URL}/info/vote_event", json=vote_data)

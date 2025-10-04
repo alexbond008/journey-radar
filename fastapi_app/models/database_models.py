@@ -55,8 +55,8 @@ class EventCreate(BaseModel):
     reportedBy: str
 
 class EventVote(BaseModel):
-    eventId: str
-    userId: str
+    eventId: int
+    userId: int
     voteType: str  # "upvote" or "downvote"
 
 class Edge(BaseModel):

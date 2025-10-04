@@ -195,14 +195,8 @@ async def get_lines_for_stop(stop_id: str):
 @router.post("/vote_event", response_model=Event)
 async def vote_event(vote_data: EventVote):
     """Vote on an event (upvote or downvote)"""
-    # Convert string eventId to int for comparison
-    try:
-        event_id_int = int(vote_data.eventId)
-    except ValueError:
-        raise HTTPException(status_code=400, detail=f"Invalid event ID: {vote_data.eventId}")
-    
     # Find the event
-    event = next((e for e in EVENTS_STORAGE if e.id == event_id_int), None)
+    event = next((e for e in EVENTS_STORAGE if e.id == vote_data.eventId), None)
     if not event:
         raise HTTPException(status_code=404, detail=f"Event with ID {vote_data.eventId} not found")
     
