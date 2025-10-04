@@ -1,7 +1,7 @@
-from models.database_models import LatLng, Stop, Line
+from models.database_models import LatLng, Stop, Line, Edge, Schedule
 from repositiories.user_repository import get_stop_by_id
 from db.dicts import lines
-from typing import List
+from typing import List, Dict, Optional, Tuple
 from datetime import time, datetime
 from queue import PriorityQueue
 import math
@@ -30,10 +30,10 @@ def calculate_distance(point1: LatLng, point2: LatLng) -> float:
 
 def find_nearest_edge(location: LatLng, stops: List[Stop]) -> int:
     """Znajduje najbliższy przystanek do danego punktu"""
-    nearest_stop = None
+    nearest_stop = 1  # Domyślny przystanek
     nearest_distance = float('inf')
     
-    for stop in stops.values():
+    for stop in stops:
         stop_location = LatLng(lat=stop.lat, lng=stop.lon)
         distance = calculate_distance(location, stop_location)
         if distance < nearest_distance:
@@ -46,11 +46,12 @@ def find_nearest_edge(location: LatLng, stops: List[Stop]) -> int:
 def get_next_prev_stop(line: Line, stop: Stop):
     """Znajduje sąsiednie przystanki dla danego przystanku w linii"""
     res = []
-    for edge in line.edges:
-        if edge.from_stop == stop.id:
-            res.append(edge.to_stop)
-        elif edge.to_stop == stop.id:
-            res.append(edge.from_stop)
+    if line and line.edges:
+        for edge in line.edges:
+            if edge.from_stop == stop.id:
+                res.append(edge.to_stop)
+            elif edge.to_stop == stop.id:
+                res.append(edge.from_stop)
     return res
 
 def get_possible_connect(current_stop: Stop, current_time: time):
@@ -64,39 +65,41 @@ def get_possible_connect(current_stop: Stop, current_time: time):
         if not neighbours:
             continue
             
-        for schedule in line.time_table:
-            stop_to_time = schedule.stop_to_time
-            
-            # Sprawdź czy przystanek jest w harmonogramie
-            if current_stop.id not in stop_to_time:
-                continue
+        if line.time_table:
+            for schedule in line.time_table:
+                stop_to_time = schedule.stop_to_time
                 
-            current_stop_time = stop_to_time[current_stop.id]
-            
-            # Znajdź następny przystanek w harmonogramie
-            for next_stop_id in neighbours:
-                if next_stop_id not in stop_to_time:
+                # Sprawdź czy przystanek jest w harmonogramie
+                if current_stop.id not in stop_to_time:
                     continue
                     
-                next_stop_time = stop_to_time[next_stop_id]
+                current_stop_time = stop_to_time[current_stop.id]
                 
-                # Sprawdź czy to jest następny przystanek w harmonogramie
-                if next_stop_time > current_stop_time:
-                    # Sprawdź czy możemy złapać ten pociąg
-                    if current_stop_time >= current_time:
-                        # Oblicz czas oczekiwania i podróży
-                        waiting_time = (current_stop_time.hour * 60 + current_stop_time.minute) - (current_time.hour * 60 + current_time.minute)
-                        travel_time = (next_stop_time.hour * 60 + next_stop_time.minute) - (current_stop_time.hour * 60 + current_stop_time.minute)
-                        total_time = waiting_time + travel_time
+                # Znajdź następny przystanek w harmonogramie
+                for next_stop_id in neighbours:
+                    if next_stop_id not in stop_to_time:
+                        continue
                         
-                        possible_arriving.append((total_time, schedule, next_stop_time, next_stop_id))
+                    next_stop_time = stop_to_time[next_stop_id]
+                    
+                    # Sprawdź czy to jest następny przystanek w harmonogramie
+                    if next_stop_time > current_stop_time:
+                        # Sprawdź czy możemy złapać ten pociąg
+                        if current_stop_time >= current_time:
+                            # Oblicz czas oczekiwania i podróży
+                            waiting_time = (current_stop_time.hour * 60 + current_stop_time.minute) - (current_time.hour * 60 + current_time.minute)
+                            travel_time = (next_stop_time.hour * 60 + next_stop_time.minute) - (current_stop_time.hour * 60 + current_stop_time.minute)
+                            total_time = waiting_time + travel_time
+                            
+                            possible_arriving.append((total_time, schedule, next_stop_time, next_stop_id, line))
     
     return possible_arriving
 
-def get_best_route(start: Stop, end: Stop, start_time: time = time(6, 0)):
+def get_best_route(start: Stop, end: Stop, start_time: time = datetime.now().time()) -> Optional[Dict[int, Line]]:
     """Znajduje najlepszą trasę między dwoma przystankami używając algorytmu Dijkstry"""
     visited = set()
     prev = {}  # poprzednik: stop_id -> poprzedni stop_id
+    line_info = {}  # stop_id -> (line, schedule) używane do dotarcia
     times = {start.id: 0}  # najlepszy znany czas dojścia w minutach
     q = PriorityQueue()
     q.put((0, start.id, start_time))
@@ -111,17 +114,10 @@ def get_best_route(start: Stop, end: Stop, start_time: time = time(6, 0)):
         current_stop = get_stop_by_id(current_stop_id)
 
         if current_stop_id == end.id:
-            # Rekonstrukcja trasy
-            path = []
-            current = current_stop_id
-            while current in prev:
-                path.append(get_stop_by_id(current))
-                current = prev[current]
-            path.append(start)
-            path.reverse()
-            return path, total_time  # zwraca trasę i czas całkowity w minutach
+            # Rekonstrukcja trasy i tworzenie segmentów
+            return _reconstruct_route_segments(start, end, prev, line_info)
 
-        for diff_time, schedule, arrive_time, next_stop_id in get_possible_connect(current_stop, current_time):
+        for diff_time, schedule, arrive_time, next_stop_id, line in get_possible_connect(current_stop, current_time):
             if next_stop_id in visited:
                 continue
 
@@ -131,7 +127,102 @@ def get_best_route(start: Stop, end: Stop, start_time: time = time(6, 0)):
             if next_stop_id not in times or new_total_time < times[next_stop_id]:
                 times[next_stop_id] = new_total_time
                 prev[next_stop_id] = current_stop_id
+                line_info[next_stop_id] = (line, schedule)
                 q.put((new_total_time, next_stop_id, arrive_time))
 
-    return None, None  # brak połączenia
+    return None  # brak połączenia
 
+def _reconstruct_route_segments(start: Stop, end: Stop, prev: Dict[int, int], line_info: Dict[int, Tuple[Line, Schedule]]) -> Dict[int, Line]:
+    """Rekonstruuje trasę jako segmenty linii z odpowiednimi przystankami i harmonogramami"""
+    # Rekonstrukcja ścieżki
+    path = []
+    current = end.id
+    while current in prev:
+        path.append(get_stop_by_id(current))
+        current = prev[current]
+    path.append(start)
+    path.reverse()
+    
+    # Grupowanie przystanków według linii
+    segments = {}
+    current_segment = 1
+    current_line: Optional[Line] = None
+    current_schedule: Optional[Schedule] = None
+    segment_stops = []
+    
+    for i, stop in enumerate(path):
+        if i == 0:
+            # Pierwszy przystanek - znajdź linię
+            if stop.id in line_info:
+                current_line, current_schedule = line_info[stop.id]
+            else:
+                # Znajdź linię zawierającą ten przystanek
+                for line in lines.values():
+                    if line and line.edges and any(edge.from_stop == stop.id or edge.to_stop == stop.id for edge in line.edges):
+                        current_line = line
+                        current_schedule = line.time_table[0] if line.time_table else None
+                        break
+            segment_stops.append(stop)
+        else:
+            # Sprawdź czy przystanek jest w tej samej linii
+            if stop.id in line_info:
+                line, schedule = line_info[stop.id]
+                if current_line and line.id != current_line.id:
+                    # Nowa linia - zapisz poprzedni segment
+                    if current_line and segment_stops and current_schedule:
+                        segments[current_segment] = _create_line_segment(current_line, segment_stops, current_schedule)
+                        current_segment += 1
+                        segment_stops = [stop]
+                        current_line = line
+                        current_schedule = schedule
+                    else:
+                        segment_stops.append(stop)
+                else:
+                    segment_stops.append(stop)
+            else:
+                # Sprawdź czy przystanek jest w obecnej linii
+                if current_line and current_line.edges and any(edge.from_stop == stop.id or edge.to_stop == stop.id for edge in current_line.edges):
+                    segment_stops.append(stop)
+                else:
+                    # Znajdź nową linię
+                    for line in lines.values():
+                        if line and line.edges and any(edge.from_stop == stop.id or edge.to_stop == stop.id for edge in line.edges):
+                            if current_line and segment_stops and current_schedule:
+                                segments[current_segment] = _create_line_segment(current_line, segment_stops, current_schedule)
+                                current_segment += 1
+                            segment_stops = [stop]
+                            current_line = line
+                            current_schedule = line.time_table[0] if line.time_table else None
+                            break
+    
+    # Dodaj ostatni segment
+    if current_line and segment_stops and current_schedule:
+        segments[current_segment] = _create_line_segment(current_line, segment_stops, current_schedule)
+    
+    return segments
+
+def _create_line_segment(original_line: Line, stops: List[Stop], schedule: Schedule) -> Line:
+    """Tworzy segment linii z podanymi przystankami i harmonogramem"""
+    # Tworzenie krawędzi między kolejnymi przystankami
+    edges = []
+    for i in range(len(stops) - 1):
+        edge = Edge(
+            id=original_line.id * 1000 + i,  # Unikalne ID
+            from_stop=stops[i].id,
+            to_stop=stops[i + 1].id
+        )
+        edges.append(edge)
+    
+    # Filtrowanie harmonogramu tylko dla przystanków w segmencie
+    stop_ids = [stop.id for stop in stops]
+    filtered_schedule = Schedule(
+        id=schedule.id,
+        stop_to_time={stop_id: time for stop_id, time in schedule.stop_to_time.items() if stop_id in stop_ids}
+    )
+    
+    return Line(
+        id=original_line.id,
+        name=original_line.name,
+        edges=edges,
+        time_table=[filtered_schedule]
+    )
