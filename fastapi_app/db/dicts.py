@@ -5,6 +5,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from models.database_models import Notification, User, Train, Stop, Line, Edge, Event, LatLng, IncidentType
 from datetime import datetime
 from typing import Dict, List
+import logging
 
 # Simulacja tabel bazodanowych jako słowniki
 # Klucze to ID, wartości to obiekty modeli
@@ -288,6 +289,13 @@ def my_print(lines_dict: Dict[int, Line]):
             print(f"   {i:2d}. {station_name}")
         
         print(f"   📊 Łącznie: {len(stations_in_order)} przystanków")
+
+def get_all_stops() -> List[Stop]:
+    """Zwraca listę wszystkich przystanków"""
+
+    stops_list = list(stops.values())
+    logging.info(f"Zwracam listę wszystkich przystanków: {stops_list}")
+    return stops_list
 
 notifications: list[Notification] = []
 

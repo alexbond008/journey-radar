@@ -3,7 +3,8 @@ from typing import List, Optional
 from datetime import datetime
 import uuid
 from models.database_models import Line, Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng, Notification
-from db.dicts import stops, lines, notifications
+from db.dicts import stops, lines, notifications, get_all_stops
+from repositiories.route_finding import find_nearest_edge
 
 router = APIRouter(prefix="/info", tags=["info"])
 
@@ -37,7 +38,9 @@ async def get_stops_for_line(line_id: str = Query(..., description="Line ID")):
 async def report_event(event_data: EventCreate):
     """Report a new event for a route"""
 
-    edge_id = find_nearest_edge(event_data.location)
+    stops = get_all_stops()
+
+    edge_id = find_nearest_edge(event_data.location, stops)
     
     # Create new event
     new_event = Event(
@@ -206,7 +209,3 @@ async def get_user_notifications(user_id: str) -> list[Notification]:
     """Get notifications for a specific user (stub implementation)"""
     user_notifications = [n for n in notifications if n.user_id == user_id]
     return user_notifications
-
-
-
-    
