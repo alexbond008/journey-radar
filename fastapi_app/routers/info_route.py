@@ -3,20 +3,8 @@ from typing import List, Optional
 from datetime import datetime
 import uuid
 from models.database_models import Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng
-from services.data_loader import DataLoader
 
 router = APIRouter(prefix="/info", tags=["info"])
-
-# Load real data from CSV
-try:
-    data_loader = DataLoader()
-    REAL_STOPS, REAL_ROUTES = data_loader.load_data()
-    print(f"Loaded {len(REAL_STOPS)} stops and {len(REAL_ROUTES)} routes from CSV")
-except Exception as e:
-    print(f"Error loading CSV data: {e}")
-    # Fallback to empty data
-    REAL_STOPS = []
-    REAL_ROUTES = []
 
 # Events storage (in production this would be a database)
 EVENTS_STORAGE = [
@@ -235,39 +223,3 @@ async def get_route_by_number(line_number: str):
         raise HTTPException(status_code=404, detail=f"Line {line_number} not found")
     
     return route
-
-@router.get("/csv_info")
-async def get_csv_info():
-    """Get information about the loaded CSV data"""
-    if not REAL_STOPS or not REAL_ROUTES:
-        return {
-            "status": "error",
-            "message": "CSV data not loaded properly"
-        }
-    
-    # Get some sample data
-    sample_stops = REAL_STOPS[:5]
-    sample_routes = REAL_ROUTES[:3]
-    
-    return {
-        "status": "success",
-        "total_stops": len(REAL_STOPS),
-        "total_routes": len(REAL_ROUTES),
-        "available_lines": [route.number for route in REAL_ROUTES],
-        "sample_stops": [
-            {
-                "id": stop.id,
-                "name": stop.name,
-                "lat": stop.lat,
-                "lon": stop.lon
-            } for stop in sample_stops
-        ],
-        "sample_routes": [
-            {
-                "id": route.id,
-                "name": route.name,
-                "number": route.number,
-                "stop_count": len(route.stops)
-            } for route in sample_routes
-        ]
-    }
