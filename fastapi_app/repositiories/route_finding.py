@@ -28,9 +28,13 @@ def find_nearest_edge(location: LatLng, stops: List[Stop]) -> int:
     """Znajduje najbliższy przystanek do danego punktu"""
     nearest_stop = None
     nearest_distance = float('inf')
-    for stop in stops:
-        distance = calculate_distance(location, stop.location)
+    
+    for stop in stops.values():
+        stop_location = LatLng(lat=stop.lat, lng=stop.lon)
+        distance = calculate_distance(location, stop_location)
         if distance < nearest_distance:
             nearest_distance = distance
             nearest_stop = stop.id
+    
     return nearest_stop
+    

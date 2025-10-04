@@ -3,7 +3,7 @@ from typing import List, Optional
 from datetime import datetime
 import uuid
 from models.database_models import Line, Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng, Notification
-from db.dicts import stops, lines, notifications, get_all_stops
+from db.dicts import stops, lines, notifications
 from repositiories.route_finding import find_nearest_edge
 
 router = APIRouter(prefix="/info", tags=["info"])
@@ -42,7 +42,7 @@ async def report_event(event_data: EventCreate):
     
     # Create new event
     new_event = Event(
-        id=f"event_{uuid.uuid4().hex[:8]}",
+        id=len(EVENTS_STORAGE) + 1,
         type=event_data.type,
         title=event_data.title,
         description=event_data.description,
