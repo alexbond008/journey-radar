@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional
 from datetime import datetime
 import uuid
-from models.database_models import Line, LineResponse, Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng, Notification
+from models.database_models import Line, LineResponse, Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng, Notification, User
 import db.dicts
 from db.dicts import stops, lines, notifications, edges, users, trains
 from repositiories.route_finding import find_nearest_edge
@@ -285,6 +285,10 @@ async def get_user_notifications(user_id: str) -> list[Notification]:
     return user_notifications
 
 
+@router.get("/users")
+async def get_all_users() -> list[User]:
+    """Get all users (stub implementation)"""
+    return list(users.values())
 
 
     
