@@ -18,7 +18,7 @@ class LatLng(BaseModel):
     lng: float
 
 class Stop(BaseModel):
-    id: str
+    id: int
     code: str  # stop number/code
     name: str
     description: Optional[str] = None
@@ -26,14 +26,14 @@ class Stop(BaseModel):
     lon: float
 
 class Route(BaseModel):
-    id: str
+    id: int
     name: str
     number: str
     description: Optional[str] = None
     stops: List[Stop] = []
 
 class Event(BaseModel):
-    id: str
+    id: int
     type: IncidentType
     title: str
     description: str
@@ -55,8 +55,8 @@ class EventCreate(BaseModel):
     reportedBy: str
 
 class EventVote(BaseModel):
-    eventId: str
-    userId: str
+    eventid: int
+    userid: int
     voteType: str  # "upvote" or "downvote"
 
 class Edge(BaseModel):
