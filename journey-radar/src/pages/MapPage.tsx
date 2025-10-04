@@ -10,8 +10,9 @@ import { useEvents } from '@/hooks/useEvents';
 import { useRoutes } from '@/hooks/useRoutes';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { BottomNavigation } from '@/components/layout/BottomNavigation';
-import { X, Check, MapPin } from 'lucide-react';
+import { X, Check, MapPin, Info, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { TooltipType } from '@/components/map/MapTooltip';
 
 export function MapPage() {
   const { events } = useEvents();
@@ -24,6 +25,8 @@ export function MapPage() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [pinPlacementMode, setPinPlacementMode] = useState(false);
   const [pinnedLocation, setPinnedLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [tooltipType, setTooltipType] = useState<TooltipType>('event');
+  const [chatEventContext, setChatEventContext] = useState<string | null>(null);
 
   const userLocation =
     latitude && longitude ? { lat: latitude, lng: longitude } : null;
@@ -56,6 +59,16 @@ export function MapPage() {
     setPinnedLocation(null);
   };
 
+  const handleChatClick = (eventId: string) => {
+    setChatEventContext(eventId);
+    setChatbotModalOpen(true);
+  };
+
+  const handleCloseChatModal = () => {
+    setChatbotModalOpen(false);
+    setChatEventContext(null);
+  };
+
   return (
     <div className="h-screen flex flex-col bg-background">
       <Header onRoutesClick={() => setRoutePanelOpen(true)} />
@@ -67,12 +80,15 @@ export function MapPage() {
             selectedRoute={selectedRoute}
             userLocation={userLocation}
             onMarkerClick={setSelectedEventId}
+            onChatClick={handleChatClick}
             pinPlacementMode={pinPlacementMode}
             pinnedLocation={pinnedLocation}
             onPinPlaced={handlePinMoved}
+            tooltipType={tooltipType}
           />
         </div>
 
+        
         {/* Selected Route Badge */}
         {selectedRoute && (
           <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[999] animate-in slide-in-from-top duration-300">
@@ -162,7 +178,8 @@ export function MapPage() {
       />
       <ChatbotModal
         isOpen={chatbotModalOpen}
-        onClose={() => setChatbotModalOpen(false)}
+        onClose={handleCloseChatModal}
+        eventContext={chatEventContext}
       />
     </div>
   );

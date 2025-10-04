@@ -2,10 +2,12 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { X, Send, Loader2 } from 'lucide-react';
+import { promptService } from '@/services/promptService';
 
 interface ChatbotModalProps {
   isOpen: boolean;
   onClose: () => void;
+  eventContext?: string | null;
 }
 
 interface Message {
@@ -15,7 +17,7 @@ interface Message {
   timestamp: Date;
 }
 
-export function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
+export function ChatbotModal({ isOpen, onClose, eventContext }: ChatbotModalProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -33,7 +35,30 @@ export function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
     if (isOpen && textareaRef.current) {
       textareaRef.current.focus();
     }
-  }, [isOpen]);
+    
+    // Add context message when opening with event context
+    if (isOpen && eventContext) {
+      setMessages((prev) => {
+        // Check if we already added a context message
+        const hasContextMessage = prev.some(
+          (msg) => msg.content.includes('I see you\'re asking about event')
+        );
+        
+        if (!hasContextMessage) {
+          return [
+            ...prev,
+            {
+              id: `context-${Date.now()}`,
+              role: 'assistant',
+              content: `I see you're asking about event ${eventContext}. How can I help you with this incident?`,
+              timestamp: new Date(),
+            },
+          ];
+        }
+        return prev;
+      });
+    }
+  }, [isOpen, eventContext]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -56,28 +81,15 @@ export function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
     setIsLoading(true);
 
     try {
-      // TODO: Replace with actual API call to your backend
-      const response = await fetch('/api/chatbot', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: inputValue,
-          history: messages.map((m) => ({ role: m.role, content: m.content })),
-        }),
+      // Call the promptService with the user's message
+      const response = await promptService.sendPrompt({
+        prompt: inputValue,
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to get response from chatbot');
-      }
-
-      const data = await response.json();
       
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.response || 'I apologize, but I couldn\'t process that request.',
+        content: response || 'I apologize, but I couldn\'t process that request.',
         timestamp: new Date(),
       };
 
@@ -85,11 +97,11 @@ export function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
     } catch (error) {
       console.error('Error sending message:', error);
       
-      // Fallback response for development
+      // Error response
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'I\'m currently in development mode. The chatbot backend is not yet connected. Your message was: "' + inputValue + '"',
+        content: 'I\'m sorry, I encountered an error processing your request. Please try again later.',
         timestamp: new Date(),
       };
 

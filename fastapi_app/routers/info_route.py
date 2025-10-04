@@ -8,6 +8,13 @@ from db.dicts import stops, lines, notifications, edges, users, trains, events
 from repositiories.route_finding import find_nearest_edge, get_best_route
 from repositiories.user_repository import update_user_level
 from openai import OpenAI
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
+client = OpenAI(
+    api_key=os.environ.get("OPENAI_API_KEY"),
+)
 
 router = APIRouter(prefix="/info", tags=["info"])
 
@@ -317,15 +324,16 @@ async def get_llm_answer(prompt: str) -> str:
     trains = {trains}
 """
 
-    response = OpenAI.chat.completions.create(
-        model="gemma3",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": prompt}
-        ]
-    )
 
-    return response.choices[0].message.content
+
+
+    response = client.responses.create(
+    model="gpt-4o",
+    instructions=system_prompt,
+    input=prompt
+    )
+    from pprint import pprint
+    return response.output[0].content[0].text
 
     
 @router.post("/get_route")
