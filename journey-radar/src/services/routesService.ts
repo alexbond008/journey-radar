@@ -1,28 +1,23 @@
 import api from './api';
-import { LineResponse, Stop } from '@/types';
+import { BusRoute, Stop } from '@/types';
 
 export const routesService = {
 
-  async getLineWithStops(): Promise<LineResponse[]> {
-    const response = await api.get<LineResponse[]>('/info/get_line_with_stops');
-    return response.data;
-  },
-
-  // Get all routes
-  async getAllRoutes(): Promise<LineResponse[]> {
-    const response = await api.get<LineResponse[]>('/info/get_lines');
+  // Get all routes with polylines
+  async getAllRoutes(): Promise<BusRoute[]> {
+    const response = await api.get<BusRoute[]>('/info/get_lines');
     return response.data;
   },
 
   // Get route by ID
-  async getRouteById(routeId: string): Promise<LineResponse> {
-    const response = await api.get<LineResponse>(`/info/get_line_info/${routeId}`);
+  async getRouteById(routeId: number): Promise<BusRoute> {
+    const response = await api.get<BusRoute>(`/info/get_line_info/${routeId}`);
     return response.data;
   },
 
   // Get route by line number
-  async getRouteByNumber(lineNumber: string): Promise<LineResponse> {
-    const response = await api.get<LineResponse>(`/info/route_by_number/${lineNumber}`);
+  async getRouteByNumber(lineNumber: string): Promise<BusRoute> {
+    const response = await api.get<BusRoute>(`/info/route_by_number/${lineNumber}`);
     return response.data;
   },
 
@@ -33,7 +28,7 @@ export const routesService = {
   },
 
   // Get stops for a specific route
-  async getStopsForRoute(lineId: string): Promise<Stop[]> {
+  async getStopsForRoute(lineId: number): Promise<Stop[]> {
     const response = await api.get<Stop[]>(`/info/get_stops_for_line?line_id=${lineId}`);
     return response.data;
   },

@@ -1,8 +1,4 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -13,8 +9,6 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { IncidentType } from '@/types';
 import { useEvents } from '@/hooks/useEvents';
-import { useRoutes } from '@/hooks/useRoutes';
-import { useGeolocation } from '@/hooks/useGeolocation';
 import { toast } from 'sonner';
 
 interface ReportIncidentModalProps {
@@ -24,56 +18,77 @@ interface ReportIncidentModalProps {
 
 export function ReportIncidentModal({ isOpen, onClose }: ReportIncidentModalProps) {
   const { createEvent } = useEvents();
-  const { routes } = useRoutes();
-  const { latitude, longitude } = useGeolocation(false);
-
-  const [type, setType] = useState<IncidentType | ''>('');
-  const [routeId, setRouteId] = useState('');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
+
+  // Get user's current location when modal opens
+  useEffect(() => {
+    if (isOpen && !currentLocation) {
+      setLocationLoading(true);
+      
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setCurrentLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            });
+            setLocationLoading(false);
+          },
+          (error) => {
+            console.error('Error getting location:', error);
+            // Fallback to Krakow coordinates
+            setCurrentLocation({
+              lat: 50.0647,
+              lng: 19.9450,
+            });
+            setLocationLoading(false);
+            toast.info('Using default location (Krakow)');
+          }
+        );
+      } else {
+        // Fallback if geolocation is not supported
+        setCurrentLocation({
+          lat: 50.0647,
+          lng: 19.9450,
+        });
+        setLocationLoading(false);
+        toast.info('Geolocation not supported, using default location');
+      }
+    }
+  }, [isOpen, currentLocation]);
 
   const incidentTypes = [
     { value: IncidentType.DELAY, label: 'Delay', icon: '🕒' },
     { value: IncidentType.CROWDING, label: 'Crowding', icon: '👥' },
-    { value: IncidentType.SAFETY, label: 'Safety Issue', icon: '⚠️' },
-    { value: IncidentType.ROUTE_CHANGE, label: 'Route Change', icon: '↪️' },
     { value: IncidentType.ACCIDENT, label: 'Accident', icon: '🚨' },
-    { value: IncidentType.BREAKDOWN, label: 'Breakdown', icon: '🔧' },
+    { value: IncidentType.TECHNICAL_ISSUE, label: 'Technical Issue', icon: '🔧' },
+    { value: IncidentType.ROAD_WORKS, label: 'Road Works', icon: '🚧' },
+    { value: IncidentType.WEATHER, label: 'Weather', icon: '🌧️' },
+    { value: IncidentType.OTHER, label: 'Other', icon: '📌' },
   ];
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSelectIncident = async (selectedType: string) => {
+    if (loading || !currentLocation) return;
 
-    if (!type || !routeId || !title) {
-      toast.error('Please fill all required fields');
-      return;
-    }
+    const incident = incidentTypes.find(i => i.value === selectedType);
+    if (!incident) return;
 
     setLoading(true);
     try {
       await createEvent({
-        type: type as string,
-        title,
-        description,
-        timestamp: new Date().toISOString(),
-        location: {
-          lat: latitude || 50.0647,
-          lon: longitude || 19.9450,
-        },
-        routeId,
+        type: selectedType as IncidentType,
+        title: incident.label,
+        description: `${incident.label} reported by user`,
+        location: currentLocation,
         reportedBy: 'anonymous',
       });
 
       toast.success('Incident reported successfully');
       onClose();
-      
-      // Reset form
-      setType('');
-      setRouteId('');
-      setTitle('');
-      setDescription('');
     } catch (error) {
+      console.error('Error reporting incident:', error);
       toast.error('Failed to report incident');
     } finally {
       setLoading(false);
@@ -82,96 +97,38 @@ export function ReportIncidentModal({ isOpen, onClose }: ReportIncidentModalProp
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle>Report an Incident</DialogTitle>
           <DialogDescription>
-            Help others by reporting incidents on your route
+            Select the type of incident you want to report
+            {locationLoading && " (getting your location...)"}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="type">Incident Type *</Label>
-            <Select value={type} onValueChange={(value) => setType(value as IncidentType)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select incident type" />
-              </SelectTrigger>
-              <SelectContent>
-                {incidentTypes.map((item) => (
-                  <SelectItem key={item.value} value={item.value}>
-                    {item.icon} {item.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label htmlFor="route">Affected Route *</Label>
-            <Select value={routeId} onValueChange={setRouteId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select route" />
-              </SelectTrigger>
-              <SelectContent>
-                {routes.map((route) => (
-                  <SelectItem key={route.id} value={route.id}>
-                    {route.number} - {route.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label htmlFor="title">Title *</Label>
-            <Input
-              id="title"
-              placeholder="Brief description"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              maxLength={100}
-              required
-            />
-            <div className="text-xs text-muted-foreground mt-1">
-              {title.length}/100 characters
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="description">Description (Optional)</Label>
-            <Textarea
-              id="description"
-              placeholder="Additional details"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              maxLength={500}
-              rows={4}
-            />
-            <div className="text-xs text-muted-foreground mt-1">
-              {description.length}/500 characters
-            </div>
-          </div>
-
-          <div className="text-sm text-muted-foreground">
-            Location: {latitude && longitude
-              ? `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
-              : 'Using default location'}
-          </div>
-
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={loading || !type || !routeId || !title}
-              className="flex-1"
-            >
-              {loading ? 'Submitting...' : 'Submit Report'}
-            </Button>
-          </div>
-        </form>
+        <div className="py-4">
+          <Select 
+            onValueChange={handleSelectIncident} 
+            disabled={loading || locationLoading || !currentLocation}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue 
+                placeholder={
+                  loading ? "Submitting..." : 
+                  locationLoading ? "Getting location..." : 
+                  "Select incident type"
+                } 
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {incidentTypes.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.icon} {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -13,7 +13,7 @@ import { EventFilters } from '@/types';
 import { AlertTriangle } from 'lucide-react';
 
 export function IncidentsPage() {
-  const { events, filterEvents } = useEvents();
+  const { events, filterEvents, loading, error } = useEvents();
   const { routes } = useRoutes();
 
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -25,6 +25,11 @@ export function IncidentsPage() {
 
   const filteredEvents = filterEvents(filters);
   const selectedEvent = events.find((e) => e.id === selectedEventId) || null;
+
+  console.log('IncidentsPage - events:', events);
+  console.log('IncidentsPage - filteredEvents:', filteredEvents);
+  console.log('IncidentsPage - loading:', loading);
+  console.log('IncidentsPage - error:', error);
 
   return (
     <div className="h-screen flex flex-col bg-background">
@@ -89,7 +94,7 @@ export function IncidentsPage() {
                 <SelectContent>
                   <SelectItem value="all">All routes</SelectItem>
                   {routes.map((route) => (
-                    <SelectItem key={route.id} value={route.id}>
+                    <SelectItem key={route.id} value={String(route.id)}>
                       {route.number} - {route.name}
                     </SelectItem>
                   ))}
@@ -98,24 +103,40 @@ export function IncidentsPage() {
             </div>
           </div>
 
+          {/* Error Display */}
+          {error && (
+            <div className="bg-destructive/20 text-destructive p-4 rounded-md">
+              Error: {error}
+            </div>
+          )}
+
+          {/* Loading State */}
+          {loading && (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Loading incidents...</p>
+            </div>
+          )}
+
           {/* Incidents List */}
-          <div className="space-y-3">
-            {filteredEvents.length === 0 ? (
-              <div className="text-center py-12">
-                <AlertTriangle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground mb-4">No incidents reported</p>
-                <Button onClick={() => setReportModalOpen(true)}>Report Incident</Button>
-              </div>
-            ) : (
-              filteredEvents.map((event) => (
-                <IncidentCard
-                  key={event.id}
-                  event={event}
-                  onClick={() => setSelectedEventId(event.id)}
-                />
-              ))
-            )}
-          </div>
+          {!loading && (
+            <div className="space-y-3">
+              {filteredEvents.length === 0 ? (
+                <div className="text-center py-12">
+                  <AlertTriangle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground mb-4">No incidents reported</p>
+                  <Button onClick={() => setReportModalOpen(true)}>Report Incident</Button>
+                </div>
+              ) : (
+                filteredEvents.map((event) => (
+                  <IncidentCard
+                    key={event.id}
+                    event={event}
+                    onClick={() => setSelectedEventId(event.id)}
+                  />
+                ))
+              )}
+            </div>
+          )}
         </div>
       </div>
 

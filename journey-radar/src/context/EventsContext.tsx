@@ -27,9 +27,12 @@ export function EventsProvider({ children }: EventsProviderProps) {
     setLoading(true);
     setError(null);
     try {
+      console.log('Fetching events from API...');
       const data = await eventsService.getAllEvents();
+      console.log('Events fetched:', data);
       setEvents(data);
     } catch (err) {
+      console.error('Error fetching events:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch events');
     } finally {
       setLoading(false);

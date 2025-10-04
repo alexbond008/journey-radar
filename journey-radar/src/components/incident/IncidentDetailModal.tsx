@@ -79,7 +79,7 @@ export function IncidentDetailModal({ event, isOpen, onClose }: IncidentDetailMo
           <div>
             <h4 className="font-semibold mb-2">Location</h4>
             <p className="text-sm text-muted-foreground">
-              {event.location.lat.toFixed(4)}, {event.location.lon.toFixed(4)}
+              {event.location.lat.toFixed(4)}, {event.location.lng.toFixed(4)}
             </p>
           </div>
 

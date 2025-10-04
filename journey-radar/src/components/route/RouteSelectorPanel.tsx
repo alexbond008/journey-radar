@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { MapPin, Navigation, X } from 'lucide-react';
+import { MapPin, Navigation, X, RotateCcw } from 'lucide-react';
 import { useStops } from '@/hooks/useStops';
 import { useRoutes } from '@/hooks/useRoutes';
 import { BusRoute } from '@/types';
@@ -68,6 +68,14 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
   const handleSelectRoute = (routeId: number) => {
     selectRoute(routeId);
     onClose();
+  };
+
+  const handleClearFields = () => {
+    setStartQuery('');
+    setDestQuery('');
+    setStartStopId(null);
+    setDestStopId(null);
+    setRouteResults([]);
   };
 
   if (!isOpen) return null;
@@ -155,13 +163,23 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
               )}
             </div>
 
-            <Button
-              onClick={handleFindRoutes}
-              disabled={!startStopId || !destStopId || loading}
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base font-semibold"
-            >
-              {loading ? 'Searching...' : 'Find Routes'}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleFindRoutes}
+                disabled={!startStopId || !destStopId || loading}
+                className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base font-semibold"
+              >
+                {loading ? 'Searching...' : 'Find Routes'}
+              </Button>
+              <Button
+                onClick={handleClearFields}
+                variant="outline"
+                className="h-12 px-4"
+                title="Clear all fields"
+              >
+                <RotateCcw className="w-5 h-5" />
+              </Button>
+            </div>
 
             {/* Route Results */}
             {routeResults.length > 0 && (

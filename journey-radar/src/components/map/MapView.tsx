@@ -55,7 +55,20 @@ export function MapView({ events, selectedRoute, userLocation, onMarkerClick }: 
       markersRef.current = [];
 
       // Add event markers
+      console.log('Adding', events.length, 'event markers to map');
       events.forEach((event) => {
+        console.log('Event marker:', {
+          id: event.id,
+          type: event.type,
+          location: event.location
+        });
+        
+        // Validate coordinates
+        if (!event.location || typeof event.location.lat !== 'number' || typeof event.location.lng !== 'number') {
+          console.error('Invalid event location:', event);
+          return;
+        }
+        
         const color = getIncidentColor(event.type);
         const icon = L.divIcon({
           className: 'custom-marker',
@@ -107,6 +120,8 @@ export function MapView({ events, selectedRoute, userLocation, onMarkerClick }: 
 
         markersRef.current.push(marker);
       });
+      
+      console.log('Added', markersRef.current.length, 'event markers');
 
       // Clear existing stop markers
       stopMarkersRef.current.forEach((marker) => marker.remove());
@@ -223,6 +238,16 @@ export function MapView({ events, selectedRoute, userLocation, onMarkerClick }: 
         userMarkerRef.current = L.marker([userLocation.lat, userLocation.lng], {
           icon: userIcon,
         }).addTo(mapInstanceRef.current!);
+      }
+      
+      // Auto-zoom to show all markers if no route is selected
+      if (!selectedRoute && markersRef.current.length > 0) {
+        console.log('Auto-zooming to show', markersRef.current.length, 'event markers');
+        const group = L.featureGroup(markersRef.current);
+        mapInstanceRef.current!.fitBounds(group.getBounds(), {
+          padding: [50, 50],
+          maxZoom: 15,
+        });
       }
     };
 

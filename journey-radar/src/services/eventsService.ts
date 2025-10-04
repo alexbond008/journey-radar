@@ -10,6 +10,7 @@ export interface CreateEventPayload {
     lng: number;
   };
   reportedBy: string;
+  routeId?: string;
 }
 
 export interface VotePayload {
@@ -19,7 +20,7 @@ export interface VotePayload {
 }
 
 interface EventResponse {
-  id: string;
+  id: number;  // Backend returns id as number
   type: IncidentType;
   title: string;
   description: string;
@@ -44,16 +45,21 @@ export const eventsService = {
     is_resolved?: boolean;
     limit?: number;
   }): Promise<Event[]> {
+    console.log('eventsService.getAllEvents called with params:', params);
     const response = await api.get<EventResponse[]>('/info/get_events', { params });
+    console.log('API response:', response.data);
     // Convert timestamp strings to Date objects and normalize location
-    return response.data.map((event) => ({
+    const events = response.data.map((event) => ({
       ...event,
+      id: String(event.id),  // Convert id from number to string
       timestamp: new Date(event.timestamp),
       location: {
         lat: event.location.lat,
         lng: event.location.lng,
       },
     }));
+    console.log('Mapped events:', events);
+    return events;
   },
 
   // Get events for a specific route
@@ -61,6 +67,7 @@ export const eventsService = {
     const response = await api.get<EventResponse[]>(`/info/get_events_for_route/${routeId}`);
     return response.data.map((event) => ({
       ...event,
+      id: String(event.id),  // Convert id from number to string
       timestamp: new Date(event.timestamp),
       location: {
         lat: event.location.lat,
@@ -74,6 +81,7 @@ export const eventsService = {
     const response = await api.post<EventResponse>('/info/report_event', event);
     return {
       ...response.data,
+      id: String(response.data.id),  // Convert id from number to string
       timestamp: new Date(response.data.timestamp),
     };
   },
@@ -83,6 +91,7 @@ export const eventsService = {
     const response = await api.post<EventResponse>('/info/vote_event', payload);
     return {
       ...response.data,
+      id: String(response.data.id),  // Convert id from number to string
       timestamp: new Date(response.data.timestamp),
     };
   },
@@ -92,6 +101,7 @@ export const eventsService = {
     const response = await api.patch<EventResponse>(`/info/resolve_event/${eventId}`);
     return {
       ...response.data,
+      id: String(response.data.id),  // Convert id from number to string
       timestamp: new Date(response.data.timestamp),
     };
   },
