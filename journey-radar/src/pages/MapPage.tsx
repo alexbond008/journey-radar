@@ -109,7 +109,7 @@ export function MapPage() {
 
         {/* Pin Placement Controls */}
         {pinPlacementMode && (
-          <div className="absolute bottom-6 right-6 z-[1100] flex flex-col gap-3">
+          <div className="absolute bottom-24 right-6 z-[1100] flex flex-col gap-3 md:bottom-6">
             <Button
               size="lg"
               className="rounded-full shadow-lg h-14 px-6"
@@ -132,7 +132,7 @@ export function MapPage() {
 
         {/* Report Problem Button */}
         {!pinPlacementMode && (
-          <div className="absolute bottom-6 right-6 z-[1100]">
+          <div className="absolute bottom-24 right-6 z-[1100] md:bottom-6">
             <ReportButton onClick={handleStartPinPlacement} />
           </div>
         )}

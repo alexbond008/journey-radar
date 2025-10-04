@@ -14,8 +14,8 @@ export interface CreateEventPayload {
 }
 
 export interface VotePayload {
-  eventId: string;
-  userId: string;
+  eventId: number;
+  userId: number;
   voteType: 'upvote' | 'downvote';
 }
 
