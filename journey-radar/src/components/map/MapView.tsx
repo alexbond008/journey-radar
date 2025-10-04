@@ -3,18 +3,21 @@ import L from 'leaflet';
 import { Event } from '@/types';
 import { getIncidentColor } from '@/utils/helpers';
 import { BusRoute } from '@/types';
+import { createTooltipHTML, TooltipType } from './MapTooltip';
 
 interface MapViewProps {
   events: Event[];
   selectedRoute: BusRoute | null;
   userLocation: { lat: number; lng: number } | null;
   onMarkerClick?: (eventId: string) => void;
+  onChatClick?: (eventId: string) => void;
   pinPlacementMode?: boolean;
   pinnedLocation?: { lat: number; lng: number } | null;
   onPinPlaced?: (location: { lat: number; lng: number }) => void;
+  tooltipType?: TooltipType;
 }
 
-export function MapView({ events, selectedRoute, userLocation, onMarkerClick, pinPlacementMode, pinnedLocation, onPinPlaced }: MapViewProps) {
+export function MapView({ events, selectedRoute, userLocation, onMarkerClick, onChatClick, pinPlacementMode, pinnedLocation, onPinPlaced, tooltipType = 'event' }: MapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
@@ -26,7 +29,25 @@ export function MapView({ events, selectedRoute, userLocation, onMarkerClick, pi
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    
+    // Set up global handlers for tooltip interactions
+    if (typeof window !== 'undefined') {
+      (window as any).mapTooltipHandlers = {
+        openChat: (eventId: string) => {
+          if (onChatClick) {
+            onChatClick(eventId);
+          }
+        },
+      };
+    }
+
+    return () => {
+      // Cleanup
+      if (typeof window !== 'undefined') {
+        delete (window as any).mapTooltipHandlers;
+      }
+    };
+  }, [onChatClick]);
 
   useEffect(() => {
     if (!isClient || !mapRef.current) return;
@@ -107,14 +128,12 @@ export function MapView({ events, selectedRoute, userLocation, onMarkerClick, pi
           mapInstanceRef.current!
         );
 
-        marker.bindPopup(`
-          <div style="color: #000; padding: 8px; min-width: 150px;">
-            <strong style="font-size: 14px; display: block; margin-bottom: 4px;">
-              ${event.type.toUpperCase()}
-            </strong>
-            <p style="margin: 0; font-size: 13px; color: #555;">${event.title}</p>
-          </div>
-        `);
+        // Bind the generic tooltip based on the tooltip type
+        const tooltipHTML = createTooltipHTML(event, tooltipType);
+        marker.bindPopup(tooltipHTML, {
+          maxWidth: 300,
+          className: 'custom-map-popup',
+        });
 
         marker.on('click', () => {
           if (onMarkerClick) {
@@ -365,7 +384,7 @@ export function MapView({ events, selectedRoute, userLocation, onMarkerClick, pi
     };
 
     initMap();
-  }, [isClient, events, selectedRoute, userLocation, onMarkerClick, pinPlacementMode, pinnedLocation, onPinPlaced]);
+  }, [isClient, events, selectedRoute, userLocation, onMarkerClick, onChatClick, pinPlacementMode, pinnedLocation, onPinPlaced, tooltipType]);
 
   if (!isClient) {
     return (
