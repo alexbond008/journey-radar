@@ -5,6 +5,7 @@ import uuid
 from models.database_models import Line, LineResponse, Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng, Notification
 import db.dicts
 from db.dicts import stops, lines, notifications
+from repositiories.route_finding import find_nearest_edge
 
 router = APIRouter(prefix="/info", tags=["info"])
 
@@ -54,16 +55,12 @@ async def get_line_with_stops(line_id: int) -> LineResponse:
 @router.post("/report_event", response_model=Event)
 async def report_event(event_data: EventCreate):
     """Report a new event for a route"""
-    route = next((r for r in lines.values() if r.id == event_data.routeId), None)
-    if not route:
-        raise HTTPException(status_code=404, detail=f"Route with ID {event_data.routeId} not found")
-    
-    # Use first edge of the route as default
-    edge_id = route.stops[0].id if route.stops else None
+
+    edge_id = find_nearest_edge(event_data.location, stops)
     
     # Create new event
     new_event = Event(
-        id=f"event_{uuid.uuid4().hex[:8]}",
+        id=len(EVENTS_STORAGE) + 1,
         type=event_data.type,
         title=event_data.title,
         description=event_data.description,
