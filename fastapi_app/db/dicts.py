@@ -1141,7 +1141,7 @@ events: Dict[int, Event] = {
         type=IncidentType.CANCELLATION,
         title="Alert RCB",
         description="Powódź w RCB, przewidywane spore utrudnienia w ruchu",
-        timestamp=datetime(2024, 1, 16, 9, 15),
+        timestamp=datetime(2024, 1, 15, 10, 15),
         location=LatLng(lat=50.0819062, lng=19.9172491),  # KRAKÓW ŁOBZÓW (stop 26)
         edge_affected=25,
         time=datetime(2024, 1, 16, 9, 15),
