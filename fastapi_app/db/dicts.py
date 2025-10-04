@@ -215,6 +215,18 @@ events: Dict[int, Event] = {
         event_type="cancellation",
         reportedBy="system"
     ),
+    4: Event(
+        id=4,
+        type=IncidentType.CANCELLATION,
+        title="Juwenalia",
+        description="Juwenalia w Krakowie, przewidywane spore utrudnienia w ruchu",
+        timestamp=datetime(2024, 1, 15, 10, 15),
+        location=LatLng(lat=50.0828134, lng=19.8919081),
+        edge_affected=25,
+        time=datetime(2024, 1, 15, 10, 15),
+        event_type="cancellation",
+        reportedBy="system"
+    )
 }
 
 # Funkcje pomocnicze do manipulacji danymi
