@@ -3,68 +3,31 @@ from typing import List, Optional
 from datetime import datetime
 import uuid
 from models.database_models import Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng
+from services.data_loader import DataLoader
 
 router = APIRouter(prefix="/info", tags=["info"])
 
-# Mock database - in production this would be a real database
-MOCK_STOPS = [
-    Stop(id="stop_001", code="001", name="Dworzec Główny", description="Główny dworzec kolejowy", lat=50.0647, lon=19.9450),
-    Stop(id="stop_002", code="002", name="Rynek Główny", description="Główny rynek miasta", lat=50.0614, lon=19.9373),
-    Stop(id="stop_003", code="003", name="Wawel", description="Zamek Królewski na Wawelu", lat=50.0547, lon=19.9354),
-    Stop(id="stop_004", code="004", name="Kazimierz", description="Dzielnica żydowska", lat=50.0513, lon=19.9442),
-    Stop(id="stop_005", code="005", name="Nowa Huta", description="Dzielnica Nowa Huta", lat=50.0755, lon=20.0322),
-    Stop(id="stop_006", code="006", name="Błonia", description="Błonia Krakowskie", lat=50.0597, lon=19.9200),
-    Stop(id="stop_007", code="007", name="Zakopane", description="Stacja w Zakopanem", lat=49.2992, lon=19.9496),
-    Stop(id="stop_008", code="008", name="Wieliczka", description="Stacja w Wieliczce", lat=49.9833, lon=20.0667),
-]
+# Load real data from CSV
+try:
+    data_loader = DataLoader()
+    REAL_STOPS, REAL_ROUTES = data_loader.load_data()
+    print(f"Loaded {len(REAL_STOPS)} stops and {len(REAL_ROUTES)} routes from CSV")
+except Exception as e:
+    print(f"Error loading CSV data: {e}")
+    # Fallback to empty data
+    REAL_STOPS = []
+    REAL_ROUTES = []
 
-MOCK_ROUTES = [
-    Route(
-        id="route_501", 
-        name="Linia 501", 
-        number="501", 
-        description="Dworzec Główny - Nowa Huta",
-        stops=[MOCK_STOPS[0], MOCK_STOPS[1], MOCK_STOPS[4]]  # Dworzec -> Rynek -> Nowa Huta
-    ),
-    Route(
-        id="route_208", 
-        name="Linia 208", 
-        number="208", 
-        description="Wawel - Kazimierz",
-        stops=[MOCK_STOPS[2], MOCK_STOPS[3]]  # Wawel -> Kazimierz
-    ),
-    Route(
-        id="route_102", 
-        name="Linia 102", 
-        number="102", 
-        description="Błonia - Dworzec Główny",
-        stops=[MOCK_STOPS[5], MOCK_STOPS[0]]  # Błonia -> Dworzec
-    ),
-    Route(
-        id="route_300", 
-        name="Linia 300", 
-        number="300", 
-        description="Kraków - Zakopane",
-        stops=[MOCK_STOPS[0], MOCK_STOPS[6]]  # Dworzec -> Zakopane
-    ),
-    Route(
-        id="route_210", 
-        name="Linia 210", 
-        number="210", 
-        description="Kraków - Wieliczka",
-        stops=[MOCK_STOPS[0], MOCK_STOPS[7]]  # Dworzec -> Wieliczka
-    ),
-]
-
-MOCK_EVENTS = [
+# Events storage (in production this would be a database)
+EVENTS_STORAGE = [
     Event(
         id="event_001",
         type=IncidentType.DELAY,
-        title="Opóźnienie na linii 501",
-        description="Autobus opóźniony o 15 minut z powodu korków na ul. Krakowskiej",
+        title="Opóźnienie na linii 1",
+        description="Autobus opóźniony o 15 minut z powodu korków",
         timestamp=datetime.now(),
-        location=LatLng(lat=50.0647, lng=19.9450),
-        routeId="route_501",
+        location=LatLng(lat=50.0683947, lng=19.9475035),  # KRAKÓW GŁÓWNY
+        routeId="route_1",
         upvotes=5,
         downvotes=1,
         isResolved=False,
@@ -73,11 +36,11 @@ MOCK_EVENTS = [
     Event(
         id="event_002",
         type=IncidentType.CANCELLATION,
-        title="Odwołany kurs linii 208",
+        title="Odwołany kurs linii 2",
         description="Kurs odwołany z powodu awarii technicznej pojazdu",
         timestamp=datetime.now(),
-        location=LatLng(lat=50.0614, lng=19.9373),
-        routeId="route_208",
+        location=LatLng(lat=50.0484386, lng=19.956833),  # KRAKÓW ZABŁOCIE
+        routeId="route_2",
         upvotes=3,
         downvotes=0,
         isResolved=True,
@@ -87,19 +50,19 @@ MOCK_EVENTS = [
 
 @router.get("/get_stops", response_model=List[Stop])
 async def get_all_stops():
-    """Get all bus stops"""
-    return MOCK_STOPS
+    """Get all bus stops from CSV data"""
+    return REAL_STOPS
 
 @router.get("/get_routes", response_model=List[Route])
 async def get_all_routes():
-    """Get all bus routes"""
-    return MOCK_ROUTES
+    """Get all bus routes from CSV data"""
+    return REAL_ROUTES
 
 @router.get("/get_stops_for_route", response_model=List[Stop])
 async def get_stops_for_route(route_id: str = Query(..., description="Route ID")):
     """Get all bus stops for a specific route"""
     # Find the route
-    route = next((r for r in MOCK_ROUTES if r.id == route_id), None)
+    route = next((r for r in REAL_ROUTES if r.id == route_id), None)
     if not route:
         raise HTTPException(status_code=404, detail=f"Route with ID {route_id} not found")
     
@@ -109,7 +72,7 @@ async def get_stops_for_route(route_id: str = Query(..., description="Route ID")
 async def report_event(event_data: EventCreate):
     """Report a new event for a route"""
     # Validate route exists
-    route = next((r for r in MOCK_ROUTES if r.id == event_data.routeId), None)
+    route = next((r for r in REAL_ROUTES if r.id == event_data.routeId), None)
     if not route:
         raise HTTPException(status_code=404, detail=f"Route with ID {event_data.routeId} not found")
     
@@ -128,8 +91,8 @@ async def report_event(event_data: EventCreate):
         reportedBy=event_data.reportedBy
     )
     
-    # Add to mock database
-    MOCK_EVENTS.append(new_event)
+    # Add to events storage
+    EVENTS_STORAGE.append(new_event)
     
     return new_event
 
@@ -141,7 +104,7 @@ async def get_events(
     limit: int = Query(50, description="Maximum number of events to return")
 ):
     """Get events with optional filtering"""
-    events = MOCK_EVENTS.copy()
+    events = EVENTS_STORAGE.copy()
     
     # Apply filters
     if route_id is not None:
@@ -163,12 +126,12 @@ async def get_events(
 async def get_events_for_route(route_id: str):
     """Get all events for a specific route"""
     # Validate route exists
-    route = next((r for r in MOCK_ROUTES if r.id == route_id), None)
+    route = next((r for r in REAL_ROUTES if r.id == route_id), None)
     if not route:
         raise HTTPException(status_code=404, detail=f"Route with ID {route_id} not found")
     
     # Get events for this route
-    events = [e for e in MOCK_EVENTS if e.routeId == route_id]
+    events = [e for e in EVENTS_STORAGE if e.routeId == route_id]
     events.sort(key=lambda x: x.timestamp, reverse=True)
     
     return events
@@ -176,7 +139,7 @@ async def get_events_for_route(route_id: str):
 @router.get("/get_route_info/{route_id}", response_model=Route)
 async def get_route_info(route_id: str):
     """Get detailed information about a specific route including its stops"""
-    route = next((r for r in MOCK_ROUTES if r.id == route_id), None)
+    route = next((r for r in REAL_ROUTES if r.id == route_id), None)
     if not route:
         raise HTTPException(status_code=404, detail=f"Route with ID {route_id} not found")
     
@@ -185,7 +148,7 @@ async def get_route_info(route_id: str):
 @router.get("/get_stop_info/{stop_id}", response_model=Stop)
 async def get_stop_info(stop_id: str):
     """Get detailed information about a specific bus stop"""
-    stop = next((s for s in MOCK_STOPS if s.id == stop_id), None)
+    stop = next((s for s in REAL_STOPS if s.id == stop_id), None)
     if not stop:
         raise HTTPException(status_code=404, detail=f"Bus stop with ID {stop_id} not found")
     
@@ -195,7 +158,7 @@ async def get_stop_info(stop_id: str):
 async def get_routes_for_stop(stop_id: str):
     """Get all routes that pass through a specific stop"""
     # Find routes that include this stop
-    routes = [r for r in MOCK_ROUTES if any(stop.id == stop_id for stop in r.stops)]
+    routes = [r for r in REAL_ROUTES if any(stop.id == stop_id for stop in r.stops)]
     
     if not routes:
         raise HTTPException(status_code=404, detail=f"No routes found for stop ID {stop_id}")
@@ -206,7 +169,7 @@ async def get_routes_for_stop(stop_id: str):
 async def vote_event(vote_data: EventVote):
     """Vote on an event (upvote or downvote)"""
     # Find the event
-    event = next((e for e in MOCK_EVENTS if e.id == vote_data.eventId), None)
+    event = next((e for e in EVENTS_STORAGE if e.id == vote_data.eventId), None)
     if not event:
         raise HTTPException(status_code=404, detail=f"Event with ID {vote_data.eventId} not found")
     
@@ -223,7 +186,7 @@ async def vote_event(vote_data: EventVote):
 @router.patch("/resolve_event/{event_id}", response_model=Event)
 async def resolve_event(event_id: str):
     """Mark an event as resolved"""
-    event = next((e for e in MOCK_EVENTS if e.id == event_id), None)
+    event = next((e for e in EVENTS_STORAGE if e.id == event_id), None)
     if not event:
         raise HTTPException(status_code=404, detail=f"Event with ID {event_id} not found")
     
@@ -234,15 +197,79 @@ async def resolve_event(event_id: str):
 async def get_stats():
     """Get basic statistics about routes, stops, and events"""
     return {
-        "total_routes": len(MOCK_ROUTES),
-        "total_stops": len(MOCK_STOPS),
-        "total_events": len(MOCK_EVENTS),
-        "resolved_events": len([e for e in MOCK_EVENTS if e.isResolved]),
-        "unresolved_events": len([e for e in MOCK_EVENTS if not e.isResolved]),
+        "total_routes": len(REAL_ROUTES),
+        "total_stops": len(REAL_STOPS),
+        "total_events": len(EVENTS_STORAGE),
+        "resolved_events": len([e for e in EVENTS_STORAGE if e.isResolved]),
+        "unresolved_events": len([e for e in EVENTS_STORAGE if not e.isResolved]),
         "events_by_type": {
-            incident_type.value: len([e for e in MOCK_EVENTS if e.type == incident_type])
+            incident_type.value: len([e for e in EVENTS_STORAGE if e.type == incident_type])
             for incident_type in IncidentType
         },
-        "total_upvotes": sum(e.upvotes for e in MOCK_EVENTS),
-        "total_downvotes": sum(e.downvotes for e in MOCK_EVENTS)
+        "total_upvotes": sum(e.upvotes for e in EVENTS_STORAGE),
+        "total_downvotes": sum(e.downvotes for e in EVENTS_STORAGE),
+        "csv_data_loaded": len(REAL_STOPS) > 0 and len(REAL_ROUTES) > 0
+    }
+
+@router.get("/lines")
+async def get_all_lines():
+    """Get all available line numbers from CSV data"""
+    return [route.number for route in REAL_ROUTES]
+
+@router.get("/stops_by_name/{stop_name}")
+async def get_stops_by_name(stop_name: str):
+    """Find stops by name (case-insensitive partial match)"""
+    matching_stops = [
+        stop for stop in REAL_STOPS 
+        if stop_name.lower() in stop.name.lower()
+    ]
+    
+    if not matching_stops:
+        raise HTTPException(status_code=404, detail=f"No stops found matching '{stop_name}'")
+    
+    return matching_stops
+
+@router.get("/route_by_number/{line_number}")
+async def get_route_by_number(line_number: str):
+    """Get route information by line number"""
+    route = next((r for r in REAL_ROUTES if r.number == line_number), None)
+    if not route:
+        raise HTTPException(status_code=404, detail=f"Line {line_number} not found")
+    
+    return route
+
+@router.get("/csv_info")
+async def get_csv_info():
+    """Get information about the loaded CSV data"""
+    if not REAL_STOPS or not REAL_ROUTES:
+        return {
+            "status": "error",
+            "message": "CSV data not loaded properly"
+        }
+    
+    # Get some sample data
+    sample_stops = REAL_STOPS[:5]
+    sample_routes = REAL_ROUTES[:3]
+    
+    return {
+        "status": "success",
+        "total_stops": len(REAL_STOPS),
+        "total_routes": len(REAL_ROUTES),
+        "available_lines": [route.number for route in REAL_ROUTES],
+        "sample_stops": [
+            {
+                "id": stop.id,
+                "name": stop.name,
+                "lat": stop.lat,
+                "lon": stop.lon
+            } for stop in sample_stops
+        ],
+        "sample_routes": [
+            {
+                "id": route.id,
+                "name": route.name,
+                "number": route.number,
+                "stop_count": len(route.stops)
+            } for route in sample_routes
+        ]
     }
