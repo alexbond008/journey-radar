@@ -4,7 +4,7 @@ from datetime import datetime
 import uuid
 from models.database_models import Line, LineResponse, Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng, Notification
 import db.dicts
-from db.dicts import stops, lines, notifications
+from db.dicts import stops, lines, notifications, edges, users, trains
 from repositiories.route_finding import find_nearest_edge
 
 router = APIRouter(prefix="/info", tags=["info"])
@@ -57,6 +57,7 @@ async def report_event(event_data: EventCreate):
     """Report a new event for a route"""
 
     edge_id = find_nearest_edge(event_data.location, stops)
+
     
     # Create new event
     new_event = Event(
@@ -75,6 +76,19 @@ async def report_event(event_data: EventCreate):
     
     # Add to events storage
     EVENTS_STORAGE.append(new_event)
+
+    edge = edges[edge_id]
+    # todo maybe later
+    # all_events_on_edge_with_type = [e for e in EVENTS_STORAGE if 
+    #                                 e.edge_affected == edge_id and 
+    #                                 e.type == event_data.type 
+    #                                 and not e.isResolved]
+    
+    for user in users.values():
+        train = trains[user.current_train_id]
+        line = lines[train.line_id]
+        if edge in line.edges:
+            notify_user(user.id, f"New event reported on your route {line.name}: {event_data.title}")
     
     return new_event
 
