@@ -44,6 +44,9 @@ class Event(BaseModel):
     downvotes: int = 0
     isResolved: bool = False
     reportedBy: str
+    edge_affected: Optional[int] = None
+    time: Optional[datetime] = None
+    event_type: Optional[str] = None
 
 class EventCreate(BaseModel):
     type: IncidentType
@@ -57,3 +60,31 @@ class EventVote(BaseModel):
     eventId: str
     userId: str
     voteType: str  # "upvote" or "downvote"
+
+class Edge(BaseModel):
+    id: int
+    from_stop: int  # Stop ID
+    to_stop: int    # Stop ID
+    distance: float
+
+
+class Line(BaseModel):
+    id: int
+    name: str
+    edges: List[Edge]
+
+
+class Train(BaseModel):
+    id: int
+    line_id: int
+    current_edge: int  # Edge ID
+    position: float    # Position on current edge (0.0 to 1.0)
+
+
+class User(BaseModel):
+    id: int
+    name: str
+    email: Optional[str] = None
+    current_train_id: Optional[int] = None
+
+

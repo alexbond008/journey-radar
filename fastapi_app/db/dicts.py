@@ -1,11 +1,7 @@
-from models.schemes import User, Train, Stop, Line, Edge, Event, Coordinates
+from models.database_models import User, Train, Stop, Line, Edge, Event, LatLng
 from datetime import datetime
 from typing import Dict, List
 
-# Simulacja tabel bazodanowych jako słowniki
-# Klucze to ID, wartości to obiekty modeli
-
-# Tabela Users
 users: Dict[int, User] = {
     1: User(
         id=1,
@@ -52,29 +48,39 @@ trains: Dict[int, Train] = {
 # Tabela Stops
 stops: Dict[int, Stop] = {
     1: Stop(
-        id=1,
-        coordinates=Coordinates(latitude=52.2297, longitude=21.0122),
-        name="Warszawa Centralna"
+        id="1",
+        code="WAR_001",
+        name="Warszawa Centralna",
+        lat=52.2297,
+        lon=21.0122
     ),
     2: Stop(
-        id=2,
-        coordinates=Coordinates(latitude=52.2374, longitude=21.0095),
-        name="Warszawa Wschodnia"
+        id="2",
+        code="WAR_002",
+        name="Warszawa Wschodnia",
+        lat=52.2374,
+        lon=21.0095
     ),
     3: Stop(
-        id=3,
-        coordinates=Coordinates(latitude=50.0614, longitude=19.9372),
-        name="Kraków Główny"
+        id="3",
+        code="KRK_001",
+        name="Kraków Główny",
+        lat=50.0614,
+        lon=19.9372
     ),
     4: Stop(
-        id=4,
-        coordinates=Coordinates(latitude=51.1079, longitude=17.0385),
-        name="Wroclaw Główny"
+        id="4",
+        code="WRO_001",
+        name="Wrocław Główny",
+        lat=51.1079,
+        lon=17.0385
     ),
     5: Stop(
-        id=5,
-        coordinates=Coordinates(latitude=53.4285, longitude=14.5530),
-        name="Szczecin Główny"
+        id="5",
+        code="SZC_001",
+        name="Szczecin Główny",
+        lat=53.4285,
+        lon=14.5530
     ),
 }
 
@@ -134,26 +140,44 @@ lines: Dict[int, Line] = {
 # Tabela Events
 events: Dict[int, Event] = {
     1: Event(
-        id=1,
-        coordinates=Coordinates(latitude=52.2322, longitude=21.0095),
+        id="event_1",
+        type="delay",
+        title="Opóźnienie pociągu",
+        description="Pociąg opóźniony o 30 minut",
+        timestamp=datetime(2024, 1, 15, 14, 30),
+        location=LatLng(lat=52.2322, lng=21.0095),
+        routeId="1",
         edge_affected=1,
         time=datetime(2024, 1, 15, 14, 30),
-        event_type="delay"
+        event_type="delay",
+        reportedBy="system"
     ),
     2: Event(
-        id=2,
-        coordinates=Coordinates(latitude=50.0614, longitude=19.9372),
+        id="event_2",
+        type="technical_issue",
+        title="Prace konserwacyjne",
+        description="Prace na torowisku",
+        timestamp=datetime(2024, 1, 15, 16, 45),
+        location=LatLng(lat=50.0614, lng=19.9372),
+        routeId="1",
         edge_affected=2,
         time=datetime(2024, 1, 15, 16, 45),
-        event_type="maintenance"
+        event_type="maintenance",
+        reportedBy="admin"
     ),
     3: Event(
-        id=3,
-        coordinates=Coordinates(latitude=51.1079, longitude=17.0385),
+        id="event_3",
+        type="cancellation",
+        title="Odwołany kurs",
+        description="Kurs odwołany z powodu remontu",
+        timestamp=datetime(2024, 1, 15, 10, 15),
+        location=LatLng(lat=51.1079, lng=17.0385),
+        routeId="3",
         edge_affected=3,
         time=datetime(2024, 1, 15, 10, 15),
-        event_type="cancellation"
+        event_type="cancellation",
+        reportedBy="system"
     ),
 }
 
-# Funkcje pomocnicze do manipulacji danym
+# Funkcje pomocnicze do manipulacji danymi
