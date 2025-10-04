@@ -2,7 +2,8 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional
 from datetime import datetime
 import uuid
-from models.database_models import Line, Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng, Notification
+from models.database_models import Line, LineResponse, Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng, Notification
+import db.dicts
 from db.dicts import stops, lines, notifications
 
 router = APIRouter(prefix="/info", tags=["info"])
@@ -32,6 +33,22 @@ async def get_stops_for_line(line_id: str = Query(..., description="Line ID")):
         raise HTTPException(status_code=404, detail=f"Line with ID {line_id} not found")
     
     return line.stops
+
+@router.get("/get_line_with_stops")
+async def get_line_with_stops(line_id: int) -> LineResponse:
+    line = lines[line_id] if line_id in lines else None
+    if not line:
+        raise HTTPException(status_code=404, detail=f"Line with ID {line_id} not found")
+
+    edges = line.edges
+
+    line_stops = [edges[0].from_stop] + [edge.to_stop for edge in edges]
+
+    return LineResponse(
+        id=line.id,
+        name=line.name,
+        stops=line_stops
+    )
 
 @router.post("/report_event", response_model=Event)
 async def report_event(event_data: EventCreate):

@@ -1,3 +1,4 @@
+import db.dicts
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
@@ -65,10 +66,15 @@ class Edge(BaseModel):
     to_stop: int    # Stop ID
 
 
+class LineResponse(BaseModel):
+    id: int
+    name: str
+    stops: list[Stop]
+
 class Line(BaseModel):
     id: int
     name: str
-    edges: List[Edge]
+    edges: list[Edge]
 
 
 class Train(BaseModel):
