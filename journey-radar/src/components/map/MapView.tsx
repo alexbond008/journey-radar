@@ -128,75 +128,91 @@ export function MapView({ events, selectedRoute, userLocation, onMarkerClick }: 
       stopMarkersRef.current = [];
 
       // Draw route polyline if selected
-      if (selectedRoute && selectedRoute.polyline.length > 0) {
+      if (selectedRoute) {
         console.log('Drawing route:', selectedRoute.number, selectedRoute.name);
-        console.log('Route has', selectedRoute.polyline.length, 'polyline points');
-        console.log('Route has', selectedRoute.stops.length, 'stops');
+        console.log('Route has', selectedRoute.stops?.length || 0, 'stops');
         
         // Remove existing route polyline
         if (routePolylineRef.current) {
           routePolylineRef.current.remove();
+          routePolylineRef.current = null;
         }
 
-        // Draw new route polyline
-        routePolylineRef.current = L.polyline(selectedRoute.polyline, {
-          color: '#eab308',
-          weight: 6,
-          opacity: 0.8,
-          smoothFactor: 1,
-        }).addTo(mapInstanceRef.current!);
+        // Generate polyline from stops if polyline property doesn't exist or is empty
+        let routeCoordinates: [number, number][] = [];
+        
+        if (selectedRoute.polyline && selectedRoute.polyline.length > 0) {
+          console.log('Using provided polyline with', selectedRoute.polyline.length, 'points');
+          routeCoordinates = selectedRoute.polyline;
+        } else if (selectedRoute.stops && selectedRoute.stops.length > 0) {
+          console.log('Generating polyline from', selectedRoute.stops.length, 'stops');
+          // Generate polyline from stops coordinates
+          routeCoordinates = selectedRoute.stops.map(stop => [stop.lat, stop.lon] as [number, number]);
+        }
 
-        console.log('Polyline added to map');
+        if (routeCoordinates.length > 0) {
+          // Draw new route polyline
+          routePolylineRef.current = L.polyline(routeCoordinates, {
+            color: '#eab308',
+            weight: 6,
+            opacity: 0.8,
+            smoothFactor: 1,
+          }).addTo(mapInstanceRef.current!);
 
-        // Add stop markers along the route
-        if (selectedRoute.stops && selectedRoute.stops.length > 0) {
-          selectedRoute.stops.forEach((stop, index) => {
-            const stopIcon = L.divIcon({
-              className: 'stop-marker',
-              html: `
-                <div style="
-                  width: 16px;
-                  height: 16px;
-                  background-color: white;
-                  border: 3px solid #eab308;
-                  border-radius: 50%;
-                  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-                "></div>
-              `,
-              iconSize: [16, 16],
-              iconAnchor: [8, 8],
+          console.log('Polyline added to map with', routeCoordinates.length, 'points');
+
+          // Add stop markers along the route
+          if (selectedRoute.stops && selectedRoute.stops.length > 0) {
+            selectedRoute.stops.forEach((stop, index) => {
+              const stopIcon = L.divIcon({
+                className: 'stop-marker',
+                html: `
+                  <div style="
+                    width: 16px;
+                    height: 16px;
+                    background-color: white;
+                    border: 3px solid #eab308;
+                    border-radius: 50%;
+                    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+                  "></div>
+                `,
+                iconSize: [16, 16],
+                iconAnchor: [8, 8],
+              });
+
+              const stopMarker = L.marker([stop.lat, stop.lon], { icon: stopIcon }).addTo(
+                mapInstanceRef.current!
+              );
+
+              stopMarker.bindPopup(`
+                <div style="color: #000; padding: 8px; min-width: 120px;">
+                  <strong style="font-size: 13px; display: block; margin-bottom: 4px;">
+                    Stop ${index + 1}
+                  </strong>
+                  <p style="margin: 0; font-size: 12px; color: #555;">${stop.name}</p>
+                  <p style="margin: 2px 0 0 0; font-size: 11px; color: #888;">Code: ${stop.code}</p>
+                </div>
+              `);
+
+              stopMarkersRef.current.push(stopMarker);
             });
+            
+            console.log('Added', selectedRoute.stops.length, 'stop markers');
+          }
 
-            const stopMarker = L.marker([stop.lat, stop.lon], { icon: stopIcon }).addTo(
-              mapInstanceRef.current!
-            );
-
-            stopMarker.bindPopup(`
-              <div style="color: #000; padding: 8px; min-width: 120px;">
-                <strong style="font-size: 13px; display: block; margin-bottom: 4px;">
-                  Stop ${index + 1}
-                </strong>
-                <p style="margin: 0; font-size: 12px; color: #555;">${stop.name}</p>
-                <p style="margin: 2px 0 0 0; font-size: 11px; color: #888;">Code: ${stop.code}</p>
-              </div>
-            `);
-
-            stopMarkersRef.current.push(stopMarker);
+          // Fit map to show entire route
+          const bounds = routePolylineRef.current.getBounds();
+          console.log('Fitting map to bounds:', bounds);
+          mapInstanceRef.current!.fitBounds(bounds, {
+            padding: [50, 50],
           });
           
-          console.log('Added', selectedRoute.stops.length, 'stop markers');
+          console.log('Map centered on route');
+        } else {
+          console.log('No valid polyline or stops data available');
         }
-
-        // Fit map to show entire route
-        const bounds = routePolylineRef.current.getBounds();
-        console.log('Fitting map to bounds:', bounds);
-        mapInstanceRef.current!.fitBounds(bounds, {
-          padding: [50, 50],
-        });
-        
-        console.log('Map centered on route');
       } else {
-        console.log('No route selected or empty polyline');
+        console.log('No route selected');
         if (routePolylineRef.current) {
           routePolylineRef.current.remove();
           routePolylineRef.current = null;
