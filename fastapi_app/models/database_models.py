@@ -65,17 +65,21 @@ class Edge(BaseModel):
     to_stop: int    # Stop ID
 
 
+class LineResponse(BaseModel):
+    id: int
+    name: str
+    stops: list[Stop]
+
 class Line(BaseModel):
     id: int
     name: str
-    edges: List[Edge]
+    edges: list[Edge]
 
 
 class Train(BaseModel):
     id: int
     line_id: int
     current_edge: int  # Edge ID
-    position: float    # Position on current edge (0.0 to 1.0)
 
 
 class User(BaseModel):

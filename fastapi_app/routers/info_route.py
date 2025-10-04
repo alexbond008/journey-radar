@@ -2,7 +2,8 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional
 from datetime import datetime
 import uuid
-from models.database_models import Line, Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng, Notification
+from models.database_models import Line, LineResponse, Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng, Notification
+import db.dicts
 from db.dicts import stops, lines, notifications
 from repositiories.route_finding import find_nearest_edge
 
@@ -13,6 +14,7 @@ EVENTS_STORAGE = []
 
 def notify_user(user_id: str, message: str):
     notifications.append(Notification(user_id=user_id, message=message, timestamp=datetime.now()))
+
 
 @router.get("/get_stops", response_model=List[Stop])
 async def get_all_stops():
@@ -33,6 +35,22 @@ async def get_stops_for_line(line_id: str = Query(..., description="Line ID")):
         raise HTTPException(status_code=404, detail=f"Line with ID {line_id} not found")
     
     return line.stops
+
+@router.get("/get_line_with_stops")
+async def get_line_with_stops(line_id: int) -> LineResponse:
+    line = lines[line_id] if line_id in lines else None
+    if not line:
+        raise HTTPException(status_code=404, detail=f"Line with ID {line_id} not found")
+
+    edges = line.edges
+
+    line_stops = [edges[0].from_stop] + [edge.to_stop for edge in edges]
+
+    return LineResponse(
+        id=line.id,
+        name=line.name,
+        stops=line_stops
+    )
 
 @router.post("/report_event", response_model=Event)
 async def report_event(event_data: EventCreate):
@@ -207,3 +225,8 @@ async def get_user_notifications(user_id: str) -> list[Notification]:
     """Get notifications for a specific user (stub implementation)"""
     user_notifications = [n for n in notifications if n.user_id == user_id]
     return user_notifications
+
+
+
+
+    

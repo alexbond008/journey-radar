@@ -1,7 +1,3 @@
-import db.dicts
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from models.database_models import Notification, User, Train, Stop, Line, Edge, Event, LatLng, IncidentType
 from datetime import datetime
 from typing import Dict, List
@@ -175,10 +171,10 @@ lines: Dict[int, Line] = {
 
 # Tabela Trains
 trains: Dict[int, Train] = {
-    101: Train(id=101, line_id=1, current_edge=15, position=0.3),
-    102: Train(id=102, line_id=2, current_edge=36, position=0.7),
-    103: Train(id=103, line_id=3, current_edge=50, position=0.1),
-    104: Train(id=104, line_id=4, current_edge=70, position=0.8),
+    101: Train(id=101, line_id=1, current_edge=15),
+    102: Train(id=102, line_id=2, current_edge=36),
+    103: Train(id=103, line_id=3, current_edge=50),
+    104: Train(id=104, line_id=4, current_edge=70),
 }
 
 # Tabela Events
