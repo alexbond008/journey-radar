@@ -1094,7 +1094,7 @@ events: Dict[int, Event] = {
         title="Opóźnienie pociągu",
         description="Pociąg opóźniony o 30 minut",
         timestamp=datetime(2024, 1, 15, 14, 30),
-        location=LatLng(lat=50.0484386, lng=19.956833),
+        location=LatLng(lat=50.0484386, lng=19.956833),  # KRAKÓW ZABŁOCIE (stop 22)
         edge_affected=22,
         time=datetime(2024, 1, 15, 14, 30),
         event_type="delay",
@@ -1106,7 +1106,7 @@ events: Dict[int, Event] = {
         title="Prace konserwacyjne",
         description="Prace na torowisku",
         timestamp=datetime(2024, 1, 15, 16, 45),
-        location=LatLng(lat=50.0683947, lng=19.9475035),
+        location=LatLng(lat=50.0683947, lng=19.9475035),  # KRAKÓW GŁÓWNY (stop 25)
         edge_affected=23,
         time=datetime(2024, 1, 15, 16, 45),
         event_type="maintenance",
@@ -1118,7 +1118,7 @@ events: Dict[int, Event] = {
         title="Odwołany kurs",
         description="Kurs odwołany z powodu remontu",
         timestamp=datetime(2024, 1, 15, 10, 15),
-        location=LatLng(lat=50.0828134, lng=19.8919081),
+        location=LatLng(lat=50.0828134, lng=19.8919081),  # KRAKÓW BRONOWICE (stop 27)
         edge_affected=25,
         time=datetime(2024, 1, 15, 10, 15),
         event_type="cancellation",
@@ -1130,9 +1130,21 @@ events: Dict[int, Event] = {
         title="Juwenalia",
         description="Juwenalia w Krakowie, przewidywane spore utrudnienia w ruchu",
         timestamp=datetime(2024, 1, 15, 10, 15),
-        location=LatLng(lat=50.0828134, lng=19.8919081),
+        location=LatLng(lat=50.0683947, lng=19.9475035),  # KRAKÓW GŁÓWNY (stop 25)
         edge_affected=25,
         time=datetime(2024, 1, 15, 10, 15),
+        event_type="cancellation",
+        reportedBy="system"
+    ),
+    5: Event(
+        id=5,
+        type=IncidentType.CANCELLATION,
+        title="Alert RCB",
+        description="Powódź w RCB, przewidywane spore utrudnienia w ruchu",
+        timestamp=datetime(2024, 1, 16, 9, 15),
+        location=LatLng(lat=50.0819062, lng=19.9172491),  # KRAKÓW ŁOBZÓW (stop 26)
+        edge_affected=25,
+        time=datetime(2024, 1, 16, 9, 15),
         event_type="cancellation",
         reportedBy="system"
     )
