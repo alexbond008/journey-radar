@@ -178,8 +178,8 @@ async def test_info_endpoints():
             print(f"Event {event['id']} is now resolved: {event['isResolved']}")
         
         # Test get all trains
-        print("\n15. Testing GET /info/trains")
-        response = await client.get(f"{BASE_URL}/info/trains")
+        print("\n15. Testing GET /trains/")
+        response = await client.get(f"{BASE_URL}/trains/")
         print(f"Status: {response.status_code}")
         if response.status_code == 200:
             trains = response.json()
@@ -188,16 +188,16 @@ async def test_info_endpoints():
                 print(f"First train: ID {trains[0]['id']} on line {trains[0]['line_id']}")
         
         # Test get train info
-        print("\n16. Testing GET /info/train/101")
-        response = await client.get(f"{BASE_URL}/info/train/101")
+        print("\n16. Testing GET /trains/101")
+        response = await client.get(f"{BASE_URL}/trains/101")
         print(f"Status: {response.status_code}")
         if response.status_code == 200:
             train = response.json()
             print(f"Train {train['id']}: Line {train['line_id']}, Edge {train['current_edge']}")
         
         # Test get train status
-        print("\n17. Testing GET /info/train/101/status")
-        response = await client.get(f"{BASE_URL}/info/train/101/status")
+        print("\n17. Testing GET /trains/101/status")
+        response = await client.get(f"{BASE_URL}/trains/101/status")
         print(f"Status: {response.status_code}")
         if response.status_code == 200:
             status = response.json()
@@ -207,8 +207,8 @@ async def test_info_endpoints():
             print(f"  - To: {status['to_stop']['name']}")
         
         # Test move train
-        print("\n18. Testing POST /info/move_train/101")
-        response = await client.post(f"{BASE_URL}/info/move_train/101")
+        print("\n18. Testing POST /trains/move_train/101")
+        response = await client.post(f"{BASE_URL}/trains/move_train/101")
         print(f"Status: {response.status_code}")
         if response.status_code == 200:
             result = response.json()
@@ -221,8 +221,8 @@ async def test_info_endpoints():
                 print(f"  - To stop: {result['to_stop']['name']}")
         
         # Test get train next stop
-        print("\n19. Testing GET /info/train/101/next_stop")
-        response = await client.get(f"{BASE_URL}/info/train/101/next_stop")
+        print("\n19. Testing GET /trains/101/next_stop")
+        response = await client.get(f"{BASE_URL}/trains/101/next_stop")
         print(f"Status: {response.status_code}")
         if response.status_code == 200:
             next_stop = response.json()
@@ -230,8 +230,8 @@ async def test_info_endpoints():
             print(f"  - Stop: {next_stop['next_stop']['name']}")
         
         # Test get trains on line
-        print("\n20. Testing GET /info/trains_on_line/1")
-        response = await client.get(f"{BASE_URL}/info/trains_on_line/1")
+        print("\n20. Testing GET /trains/on_line/1")
+        response = await client.get(f"{BASE_URL}/trains/on_line/1")
         print(f"Status: {response.status_code}")
         if response.status_code == 200:
             line_trains = response.json()
@@ -240,8 +240,30 @@ async def test_info_endpoints():
             for train in line_trains['trains']:
                 print(f"  - Train {train['train_id']}: Edge {train['current_edge']}")
         
+        # Test get train route
+        print("\n21. Testing GET /trains/101/route")
+        response = await client.get(f"{BASE_URL}/trains/101/route")
+        print(f"Status: {response.status_code}")
+        if response.status_code == 200:
+            route = response.json()
+            print(f"Train {route['train_id']} route:")
+            print(f"  - Line: {route['line_name']}")
+            print(f"  - Total stops: {route['total_stops']}")
+            print(f"  - First few stops: {[stop['name'] for stop in route['stops'][:3]]}")
+        
+        # Test get train current location
+        print("\n22. Testing GET /trains/101/current_location")
+        response = await client.get(f"{BASE_URL}/trains/101/current_location")
+        print(f"Status: {response.status_code}")
+        if response.status_code == 200:
+            location = response.json()
+            print(f"Train {location['train_id']} current location:")
+            print(f"  - From: {location['from_stop']['name']}")
+            print(f"  - To: {location['to_stop']['name']}")
+            print(f"  - Edge: {location['current_edge']}")
+        
         # Test get stats
-        print("\n21. Testing GET /info/stats")
+        print("\n23. Testing GET /info/stats")
         response = await client.get(f"{BASE_URL}/info/stats")
         print(f"Status: {response.status_code}")
         if response.status_code == 200:
