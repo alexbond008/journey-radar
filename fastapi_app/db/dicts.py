@@ -1,4 +1,5 @@
-from models.database_models import User, Train, Stop, Line, Edge, Event, LatLng, IncidentType
+from pydantic import BaseModel
+from models.database_models import Notification, User, Train, Stop, Line, Edge, Event, LatLng, IncidentType
 from datetime import datetime
 from typing import Dict, List
 
@@ -227,6 +228,9 @@ events: Dict[int, Event] = {
         reportedBy="system"
     ),
 }
+notifications: List[Notification] = [
+    Notification(user_id=2, message="Nowy event na twojej linii: Prace konserwacyjne.", timestamp=datetime.now()),
+]
 
 # Funkcje pomocnicze do manipulacji danymi
 def get_all_users() -> List[User]:

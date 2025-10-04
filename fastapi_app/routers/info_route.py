@@ -3,7 +3,7 @@ from typing import List, Optional
 from datetime import datetime
 import uuid
 from models.database_models import Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng
-from db.dicts import stops, routes
+from db.dicts import Notification, stops, routes, notifications
 
 router = APIRouter(prefix="/info", tags=["info"])
 
@@ -36,6 +36,9 @@ EVENTS_STORAGE = [
         reportedBy="user456"
     ),
 ]
+
+def notify_user(user_id: str, message: str):
+    notifications.append(Notification(user_id=user_id, message=message, timestamp=datetime.now()))
 
 @router.get("/get_stops", response_model=List[Stop])
 async def get_all_stops():
@@ -224,3 +227,13 @@ async def get_route_by_number(line_number: str):
         raise HTTPException(status_code=404, detail=f"Line {line_number} not found")
     
     return route
+
+@router.get("/notifications/{user_id}")
+async def get_user_notifications(user_id: str) -> list[Notification]:
+    """Get notifications for a specific user (stub implementation)"""
+    user_notifications = [n for n in notifications if n.user_id == user_id]
+    return user_notifications
+
+
+
+    
