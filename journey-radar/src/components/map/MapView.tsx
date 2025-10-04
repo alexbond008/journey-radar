@@ -9,15 +9,19 @@ interface MapViewProps {
   selectedRoute: BusRoute | null;
   userLocation: { lat: number; lng: number } | null;
   onMarkerClick?: (eventId: string) => void;
+  pinPlacementMode?: boolean;
+  pinnedLocation?: { lat: number; lng: number } | null;
+  onPinPlaced?: (location: { lat: number; lng: number }) => void;
 }
 
-export function MapView({ events, selectedRoute, userLocation, onMarkerClick }: MapViewProps) {
+export function MapView({ events, selectedRoute, userLocation, onMarkerClick, pinPlacementMode, pinnedLocation, onPinPlaced }: MapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
   const stopMarkersRef = useRef<L.Marker[]>([]);
   const userMarkerRef = useRef<L.Marker | null>(null);
   const routePolylineRef = useRef<L.Polyline | null>(null);
+  const pinMarkerRef = useRef<L.Marker | null>(null);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -255,6 +259,99 @@ export function MapView({ events, selectedRoute, userLocation, onMarkerClick }: 
           icon: userIcon,
         }).addTo(mapInstanceRef.current!);
       }
+
+      // Handle pin placement mode
+      if (pinPlacementMode && mapInstanceRef.current) {
+        // Remove existing pin marker
+        if (pinMarkerRef.current) {
+          pinMarkerRef.current.remove();
+          pinMarkerRef.current = null;
+        }
+
+        // Create a draggable pin icon
+        const pinIcon = L.divIcon({
+          className: 'pin-marker',
+          html: `
+            <div style="
+              width: 48px;
+              height: 48px;
+              position: relative;
+            ">
+              <div style="
+                width: 40px;
+                height: 40px;
+                background-color: #ef4444;
+                border: 4px solid white;
+                border-radius: 50% 50% 50% 0;
+                transform: rotate(-45deg);
+                position: absolute;
+                top: 0;
+                left: 4px;
+                box-shadow: 0 4px 12px rgba(239, 68, 68, 0.6), 0 0 0 2px rgba(239, 68, 68, 0.3);
+                cursor: move;
+              ">
+                <div style="
+                  width: 16px;
+                  height: 16px;
+                  background-color: white;
+                  border-radius: 50%;
+                  position: absolute;
+                  top: 8px;
+                  left: 8px;
+                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                "></div>
+              </div>
+            </div>
+          `,
+          iconSize: [48, 48],
+          iconAnchor: [24, 40],
+        });
+
+        // Use pinnedLocation if available, otherwise use map center or user location
+        const initialLocation = pinnedLocation || 
+          (userLocation ? [userLocation.lat, userLocation.lng] : mapInstanceRef.current!.getCenter());
+        
+        const latLng = Array.isArray(initialLocation) 
+          ? initialLocation as [number, number]
+          : [initialLocation.lat, initialLocation.lng] as [number, number];
+
+        pinMarkerRef.current = L.marker(latLng, {
+          icon: pinIcon,
+          draggable: true,
+          autoPan: true,
+        }).addTo(mapInstanceRef.current!);
+
+        // Notify parent when pin is dragged
+        pinMarkerRef.current.on('dragend', () => {
+          if (pinMarkerRef.current && onPinPlaced) {
+            const position = pinMarkerRef.current.getLatLng();
+            onPinPlaced({ lat: position.lat, lng: position.lng });
+          }
+        });
+
+        // Allow clicking on map to move pin
+        const mapClickHandler = (e: L.LeafletMouseEvent) => {
+          if (pinMarkerRef.current) {
+            pinMarkerRef.current.setLatLng(e.latlng);
+            if (onPinPlaced) {
+              onPinPlaced({ lat: e.latlng.lat, lng: e.latlng.lng });
+            }
+          }
+        };
+
+        mapInstanceRef.current.on('click', mapClickHandler);
+
+        // Cleanup function for map click handler
+        return () => {
+          if (mapInstanceRef.current) {
+            mapInstanceRef.current.off('click', mapClickHandler);
+          }
+        };
+      } else if (pinMarkerRef.current) {
+        // Remove pin marker if not in placement mode
+        pinMarkerRef.current.remove();
+        pinMarkerRef.current = null;
+      }
       
       // Auto-zoom to show all markers if no route is selected
       if (!selectedRoute && markersRef.current.length > 0) {
@@ -268,7 +365,7 @@ export function MapView({ events, selectedRoute, userLocation, onMarkerClick }: 
     };
 
     initMap();
-  }, [isClient, events, selectedRoute, userLocation, onMarkerClick]);
+  }, [isClient, events, selectedRoute, userLocation, onMarkerClick, pinPlacementMode, pinnedLocation, onPinPlaced]);
 
   if (!isClient) {
     return (

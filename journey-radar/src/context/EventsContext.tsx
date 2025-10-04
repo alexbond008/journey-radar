@@ -56,14 +56,14 @@ export function EventsProvider({ children }: EventsProviderProps) {
   const voteOnEvent = async (eventId: string, voteType: 'up' | 'down') => {
     try {
       // Generate a temporary userId (in production, this would come from auth)
-      const userId = localStorage.getItem('userId') || 'anonymous_' + Date.now();
+      const userIdStr = localStorage.getItem('userId') || String(Date.now());
       if (!localStorage.getItem('userId')) {
-        localStorage.setItem('userId', userId);
+        localStorage.setItem('userId', userIdStr);
       }
       
       await eventsService.voteOnEvent({ 
-        eventId, 
-        userId,
+        eventId: Number(eventId), 
+        userId: Number(userIdStr),
         voteType: voteType === 'up' ? 'upvote' : 'downvote'
       });
       await fetchEvents(); // Refresh events after voting

@@ -18,7 +18,7 @@ export function ReportButton({ onClick }: ReportButtonProps) {
           <AlertTriangle className="w-6 h-6" />
         </Button>
       </TooltipTrigger>
-      <TooltipContent side="left" sideOffset={10}>
+      <TooltipContent side="top" sideOffset={10}>
         <p>Report a Problem</p>
       </TooltipContent>
     </Tooltip>

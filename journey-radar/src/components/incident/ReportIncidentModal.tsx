@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -14,50 +14,12 @@ import { toast } from 'sonner';
 interface ReportIncidentModalProps {
   isOpen: boolean;
   onClose: () => void;
+  pinnedLocation: { lat: number; lng: number } | null;
 }
 
-export function ReportIncidentModal({ isOpen, onClose }: ReportIncidentModalProps) {
+export function ReportIncidentModal({ isOpen, onClose, pinnedLocation }: ReportIncidentModalProps) {
   const { createEvent } = useEvents();
   const [loading, setLoading] = useState(false);
-  const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [locationLoading, setLocationLoading] = useState(false);
-
-  // Get user's current location when modal opens
-  useEffect(() => {
-    if (isOpen && !currentLocation) {
-      setLocationLoading(true);
-      
-      if ('geolocation' in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            setCurrentLocation({
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            });
-            setLocationLoading(false);
-          },
-          (error) => {
-            console.error('Error getting location:', error);
-            // Fallback to Krakow coordinates
-            setCurrentLocation({
-              lat: 50.0647,
-              lng: 19.9450,
-            });
-            setLocationLoading(false);
-            toast.info('Using default location (Krakow)');
-          }
-        );
-      } else {
-        // Fallback if geolocation is not supported
-        setCurrentLocation({
-          lat: 50.0647,
-          lng: 19.9450,
-        });
-        setLocationLoading(false);
-        toast.info('Geolocation not supported, using default location');
-      }
-    }
-  }, [isOpen, currentLocation]);
 
   const incidentTypes = [
     { value: IncidentType.DELAY, label: 'Delay', icon: '🕒' },
@@ -70,7 +32,7 @@ export function ReportIncidentModal({ isOpen, onClose }: ReportIncidentModalProp
   ];
 
   const handleSelectIncident = async (selectedType: string) => {
-    if (loading || !currentLocation) return;
+    if (loading || !pinnedLocation) return;
 
     const incident = incidentTypes.find(i => i.value === selectedType);
     if (!incident) return;
@@ -81,7 +43,7 @@ export function ReportIncidentModal({ isOpen, onClose }: ReportIncidentModalProp
         type: selectedType as IncidentType,
         title: incident.label,
         description: `${incident.label} reported by user`,
-        location: currentLocation,
+        location: pinnedLocation,
         reportedBy: 'anonymous',
       });
 
@@ -101,21 +63,20 @@ export function ReportIncidentModal({ isOpen, onClose }: ReportIncidentModalProp
         <DialogHeader>
           <DialogTitle>Report an Incident</DialogTitle>
           <DialogDescription>
-            Select the type of incident you want to report
-            {locationLoading && " (getting your location...)"}
+            Select the type of incident at the pinned location
           </DialogDescription>
         </DialogHeader>
 
         <div className="py-4">
           <Select 
             onValueChange={handleSelectIncident} 
-            disabled={loading || locationLoading || !currentLocation}
+            disabled={loading || !pinnedLocation}
           >
             <SelectTrigger className="w-full">
               <SelectValue 
                 placeholder={
                   loading ? "Submitting..." : 
-                  locationLoading ? "Getting location..." : 
+                  !pinnedLocation ? "No location pinned" :
                   "Select incident type"
                 } 
               />

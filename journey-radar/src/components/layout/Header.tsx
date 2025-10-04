@@ -1,6 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { Radar, Menu, Route } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
+import { NotificationsDropdown } from './NotificationsDropdown';
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -8,6 +10,8 @@ interface HeaderProps {
 }
 
 export function Header({ onMenuClick, onRoutesClick }: HeaderProps) {
+  const { user } = useAuth();
+
   return (
     <header className="bg-card border-b border-border px-4 py-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -21,22 +25,27 @@ export function Header({ onMenuClick, onRoutesClick }: HeaderProps) {
             <Radar className="w-6 h-6 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-card-foreground">Journey-Radar</h1>
+            <h1 className="text-lg font-bold text-card-foreground">
+              {user ? `Hi, ${user.name}` : 'Journey-Radar'}
+            </h1>
             <p className="text-xs text-muted-foreground">Real-time Transit</p>
           </div>
         </Link>
       </div>
       
-      {onRoutesClick && (
-        <Button
-          onClick={onRoutesClick}
-          className="bg-primary text-primary-foreground hover:bg-primary/90"
-          size="sm"
-        >
-          <Route className="w-4 h-4 mr-2" />
-          Routes
-        </Button>
-      )}
+      <div className="flex items-center gap-2">
+        {user && <NotificationsDropdown />}
+        {onRoutesClick && (
+          <Button
+            onClick={onRoutesClick}
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+            size="sm"
+          >
+            <Route className="w-4 h-4 mr-2" />
+            Routes
+          </Button>
+        )}
+      </div>
     </header>
   );
 }
