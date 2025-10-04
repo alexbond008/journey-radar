@@ -7,7 +7,20 @@ import logging
 # Klucze to ID, wartości to obiekty modeli
 
 # Tabela Users
-users: Dict[int, User] = {}
+users: Dict[int, User] = {
+    1: User(id=1, name="Jan Kowalski", email="jan@example.com", level=15),  # Zaufany Pasażer
+    2: User(id=2, name="Anna Nowak", email="anna@example.com", level=8),    # Nowicjusz Podróżnik
+    3: User(id=3, name="Piotr Wiśniewski", email="piotr@example.com", level=0),  # Anonimowy
+    4: User(id=4, name="Maria Kowalczyk", email="maria@example.com", level=25),  # Ekspert Tras
+    5: User(id=5, name="Tomasz Lewandowski", email="tomasz@example.com", level=-3),  # Podejrzany
+    6: User(id=6, name="Katarzyna Zielińska", email="kasia@example.com", level=50),  # Mistrz Komunikacji
+    7: User(id=7, name="Michał Dąbrowski", email="michal@example.com", level=120),  # Legenda Transportu
+    8: User(id=8, name="Agnieszka Wójcik", email="aga@example.com", level=250),  # Guru Podróży
+    9: User(id=9, name="Robert Kamiński", email="robert@example.com", level=600),  # Czarodziej Infrastruktury
+    10: User(id=10, name="Magdalena Krawczyk", email="magda@example.com", level=-15),  # Niewiarygodny Reporter
+    11: User(id=11, name="Paweł Szymański", email="pawel@example.com", level=-30),  # Czarna Lista
+    12: User(id=12, name="Joanna Woźniak", email="joanna@example.com", level=3),   # Nowicjusz Podróżnik
+}
 
 # Tabela Stops - UNIKALNE przystanki (każdy pojawia się tylko raz, niezależnie od liczby linii)
 stops: Dict[int, Stop] = {
