@@ -1,20 +1,12 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
 from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime
 
-app = FastAPI(title="Krakow Bus Tracker", version="1.0.0")
+router = APIRouter(prefix="/test1", tags=["test1"])
 
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # TTSS API base URL for Krakow buses
 TTSS_BASE_URL = "https://ttss.mpk.krakow.pl/internetservice/"
@@ -35,7 +27,7 @@ class BusResponse(BaseModel):
     vehicles: List[VehiclePosition]
     timestamp: str
 
-@app.get("/")
+@router.get("/")
 async def root():
     return {
         "message": "Krakow Bus Tracker API",
@@ -45,7 +37,7 @@ async def root():
         }
     }
 
-@app.get("/bus/{route_number}", response_model=BusResponse)
+@router.get("/bus/{route_number}", response_model=BusResponse)
 async def get_bus_positions(route_number: str):
     """
     Get real-time positions of buses for a specific route in Krakow
@@ -115,7 +107,7 @@ async def get_bus_positions(route_number: str):
             detail=f"Internal server error: {str(e)}"
         )
 
-@app.get("/routes")
+@router.get("/routes")
 async def get_available_routes():
     """Get list of all available bus routes with active vehicles"""
     try:
@@ -149,7 +141,3 @@ async def get_available_routes():
             status_code=500,
             detail=f"Error fetching routes: {str(e)}"
         )
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)

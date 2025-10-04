@@ -12,6 +12,10 @@ app.add_middleware(
     allow_headers=["*"],  
 )
 
+from routers.testapi1router import router as test1_router
+
+app.include_router(test1_router)
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -21,3 +25,8 @@ async def startup_event():
 async def shutdown_event():
     """Close database connection on shutdown"""
     pass
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+# uv uvicorn main:app --host", "0.0.0.0", "--port", "8080
