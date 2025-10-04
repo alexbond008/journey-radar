@@ -1,7 +1,3 @@
-import db.dicts
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from models.database_models import Notification, User, Train, Stop, Line, Edge, Event, LatLng, IncidentType
 from datetime import datetime
 from typing import Dict, List
