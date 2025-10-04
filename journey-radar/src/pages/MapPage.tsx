@@ -4,7 +4,8 @@ import { Header } from '@/components/layout/Header';
 import { RouteSelectorPanel } from '@/components/route/RouteSelectorPanel';
 import { ReportIncidentModal } from '@/components/incident/ReportIncidentModal';
 import { IncidentDetailModal } from '@/components/incident/IncidentDetailModal';
-import { ReportButton } from '@/components/common/ReportButton';
+import { ActionButtonsMenu } from '@/components/common/ActionButtonsMenu';
+import { ChatbotModal } from '@/components/common/ChatbotModal';
 import { useEvents } from '@/hooks/useEvents';
 import { useRoutes } from '@/hooks/useRoutes';
 import { useGeolocation } from '@/hooks/useGeolocation';
@@ -19,6 +20,7 @@ export function MapPage() {
 
   const [routePanelOpen, setRoutePanelOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [chatbotModalOpen, setChatbotModalOpen] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [pinPlacementMode, setPinPlacementMode] = useState(false);
   const [pinnedLocation, setPinnedLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -130,10 +132,13 @@ export function MapPage() {
           </div>
         )}
 
-        {/* Report Problem Button */}
+        {/* Action Buttons Menu */}
         {!pinPlacementMode && (
           <div className="absolute bottom-24 right-6 z-[1100] md:bottom-6">
-            <ReportButton onClick={handleStartPinPlacement} />
+            <ActionButtonsMenu
+              onReportClick={handleStartPinPlacement}
+              onChatbotClick={() => setChatbotModalOpen(true)}
+            />
           </div>
         )}
       </div>
@@ -154,6 +159,10 @@ export function MapPage() {
         event={selectedEvent}
         isOpen={!!selectedEventId}
         onClose={() => setSelectedEventId(null)}
+      />
+      <ChatbotModal
+        isOpen={chatbotModalOpen}
+        onClose={() => setChatbotModalOpen(false)}
       />
     </div>
   );

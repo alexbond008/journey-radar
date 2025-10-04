@@ -7,7 +7,7 @@ import db.dicts
 from db.dicts import stops, lines, notifications, edges, users, trains, events
 from repositiories.route_finding import find_nearest_edge
 from repositiories.user_repository import update_user_level
-import OpenAI
+from openai import OpenAI
 
 router = APIRouter(prefix="/info", tags=["info"])
 
