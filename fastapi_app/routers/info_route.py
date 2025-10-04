@@ -2,8 +2,8 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional
 from datetime import datetime
 import uuid
-from models.database_models import Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng
-from db.dicts import Notification, stops, routes, notifications
+from models.database_models import Line, Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng
+from db.dicts import Notification, stops, lines, notifications
 
 router = APIRouter(prefix="/info", tags=["info"])
 
@@ -45,20 +45,20 @@ async def get_all_stops():
     """Get all bus stops from CSV data"""
     return list(stops.values())
 
-@router.get("/get_routes", response_model=List[Route])
-async def get_all_routes():
+@router.get("/get_lines", response_model=List[Line])
+async def get_all_lines():
     """Get all bus routes from CSV data"""
-    return list(routes.values())
+    return list(lines.values())
 
-@router.get("/get_stops_for_route", response_model=List[Stop])
-async def get_stops_for_route(route_id: str = Query(..., description="Route ID")):
-    """Get all bus stops for a specific route"""
-    # Find the route
-    route = next((r for r in routes.values() if r.id == route_id), None)
-    if not route:
-        raise HTTPException(status_code=404, detail=f"Route with ID {route_id} not found")
+@router.get("/get_stops_for_line", response_model=List[Stop])
+async def get_stops_for_line(line_id: str = Query(..., description="Line ID")):
+    """Get all bus stops for a specific line"""
+    # Find the line
+    line = next((l for l in lines.values() if l.id == line_id), None)
+    if not line:
+        raise HTTPException(status_code=404, detail=f"Line with ID {line_id} not found")
     
-    return route.stops
+    return line.stops
 
 @router.post("/report_event", response_model=Event)
 async def report_event(event_data: EventCreate):
@@ -116,7 +116,7 @@ async def get_events(
 async def get_events_for_route(route_id: str):
     """Get all events for a specific route"""
     # Validate route exists
-    route = next((r for r in routes.values() if r.id == route_id), None)
+    route = next((r for r in lines.values() if r.id == route_id), None)
     if not route:
         raise HTTPException(status_code=404, detail=f"Route with ID {route_id} not found")
     
@@ -126,14 +126,14 @@ async def get_events_for_route(route_id: str):
     
     return events
 
-@router.get("/get_route_info/{route_id}", response_model=Route)
-async def get_route_info(route_id: str):
-    """Get detailed information about a specific route including its stops"""
-    route = next((r for r in routes.values() if r.id == route_id), None)
-    if not route:
-        raise HTTPException(status_code=404, detail=f"Route with ID {route_id} not found")
-    
-    return route
+@router.get("/get_line_info/{line_id}", response_model=Line)
+async def get_line_info(line_id: str):
+    """Get detailed information about a specific line including its stops"""
+    line = lines[line_id] if line_id in lines else None
+    if not line:
+        raise HTTPException(status_code=404, detail=f"Line with ID {line_id} not found")
+
+    return line
 
 @router.get("/get_stop_info/{stop_id}", response_model=Stop)
 async def get_stop_info(stop_id: str):
@@ -144,16 +144,16 @@ async def get_stop_info(stop_id: str):
     
     return stop
 
-@router.get("/get_routes_for_stop/{stop_id}", response_model=List[Route])
-async def get_routes_for_stop(stop_id: str):
-    """Get all routes that pass through a specific stop"""
-    # Find routes that include this stop
-    routes = [r for r in routes.values() if any(stop.id == stop_id for stop in r.stops)]
-    
-    if not routes:
-        raise HTTPException(status_code=404, detail=f"No routes found for stop ID {stop_id}")
-    
-    return routes
+@router.get("/get_lines_for_stop/{stop_id}", response_model=List[Line])
+async def get_lines_for_stop(stop_id: str):
+    """Get all lines that pass through a specific stop"""
+    # Find lines that include this stop
+    lines = [l for l in lines.values() if any(stop.id == stop_id for stop in l.stops)]
+
+    if not lines:
+        raise HTTPException(status_code=404, detail=f"No lines found for stop ID {stop_id}")
+
+    return lines
 
 @router.post("/vote_event", response_model=Event)
 async def vote_event(vote_data: EventVote):
@@ -185,9 +185,9 @@ async def resolve_event(event_id: str):
 
 @router.get("/stats")
 async def get_stats():
-    """Get basic statistics about routes, stops, and events"""
+    """Get basic statistics about lines, stops, and events"""
     return {
-        "total_routes": len(routes),
+        "total_lines": len(lines),
         "total_stops": len(stops),
         "total_events": len(EVENTS_STORAGE),
         "resolved_events": len([e for e in EVENTS_STORAGE if e.isResolved]),
@@ -198,13 +198,13 @@ async def get_stats():
         },
         "total_upvotes": sum(e.upvotes for e in EVENTS_STORAGE),
         "total_downvotes": sum(e.downvotes for e in EVENTS_STORAGE),
-        "csv_data_loaded": len(stops) > 0 and len(routes) > 0
+        "csv_data_loaded": len(stops) > 0 and len(lines) > 0
     }
 
 @router.get("/lines")
 async def get_all_lines():
     """Get all available line numbers from CSV data"""
-    return [route.number for route in routes.values()]
+    return [line.number for line in lines.values()]
 
 @router.get("/stops_by_name/{stop_name}")
 async def get_stops_by_name(stop_name: str):
@@ -220,13 +220,13 @@ async def get_stops_by_name(stop_name: str):
     return matching_stops
 
 @router.get("/route_by_number/{line_number}")
-async def get_route_by_number(line_number: str):
-    """Get route information by line number"""
-    route = next((r for r in routes.values() if r.number == line_number), None)
-    if not route:
+async def get_line_by_number(line_number: str):
+    """Get line information by line number"""
+    line = next((l for l in lines.values() if l.number == line_number), None)
+    if not line:
         raise HTTPException(status_code=404, detail=f"Line {line_number} not found")
     
-    return route
+    return line
 
 @router.get("/notifications/{user_id}")
 async def get_user_notifications(user_id: str) -> list[Notification]:
