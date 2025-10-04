@@ -3,12 +3,24 @@ import { BottomNavigation } from '@/components/layout/BottomNavigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { User, AlertCircle, ThumbsUp, Calendar } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { AlertCircle, ThumbsUp, Calendar, LogOut } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 export function ProfilePage() {
-  // Placeholder user data
-  const user = {
-    username: 'Transit User',
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    toast.success('Logged out successfully');
+    navigate('/login');
+  };
+
+  // Placeholder stats
+  const userStats = {
     incidentsReported: 0,
     upvotesReceived: 0,
     memberSince: new Date(2024, 0, 1),
@@ -25,23 +37,23 @@ export function ProfilePage() {
               <div className="flex items-center gap-4">
                 <Avatar className="w-20 h-20">
                   <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
-                    <User className="w-10 h-10" />
+                    {user?.name.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <CardTitle className="text-2xl">{user.username}</CardTitle>
-                  <CardDescription>Community Member</CardDescription>
+                <div className="flex-1">
+                  <CardTitle className="text-2xl">{user?.name}</CardTitle>
+                  <CardDescription>User ID: {user?.id}</CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div className="flex items-center gap-3 p-3 bg-secondary rounded-lg">
                   <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
                     <AlertCircle className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">{user.incidentsReported}</div>
+                    <div className="text-2xl font-bold">{userStats.incidentsReported}</div>
                     <div className="text-xs text-muted-foreground">Incidents Reported</div>
                   </div>
                 </div>
@@ -51,7 +63,7 @@ export function ProfilePage() {
                     <ThumbsUp className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">{user.upvotesReceived}</div>
+                    <div className="text-2xl font-bold">{userStats.upvotesReceived}</div>
                     <div className="text-xs text-muted-foreground">Upvotes Received</div>
                   </div>
                 </div>
@@ -62,12 +74,22 @@ export function ProfilePage() {
                   </div>
                   <div>
                     <div className="text-sm font-bold">
-                      {user.memberSince.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                      {userStats.memberSince.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                     </div>
                     <div className="text-xs text-muted-foreground">Member Since</div>
                   </div>
                 </div>
               </div>
+
+              <Button 
+                onClick={handleLogout} 
+                variant="outline" 
+                className="w-full"
+                size="lg"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
             </CardContent>
           </Card>
 

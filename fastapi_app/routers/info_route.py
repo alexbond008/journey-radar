@@ -4,14 +4,15 @@ from datetime import datetime
 import uuid
 from models.database_models import Line, LineResponse, Stop, Route, Event, EventCreate, EventVote, IncidentType, LatLng, Notification, User
 import db.dicts
-from db.dicts import stops, lines, notifications, edges, users, trains
+from db.dicts import stops, lines, notifications, edges, users, trains, events
 from repositiories.route_finding import find_nearest_edge
 from repositiories.user_repository import update_user_level
 
 router = APIRouter(prefix="/info", tags=["info"])
 
 # Events storage (in production this would be a database)
-EVENTS_STORAGE: List[Event] = []
+# Initialize with seed events from db.dicts
+EVENTS_STORAGE: List[Event] = list(events.values())
 
 def notify_user(user_id: str, message: str):
     notifications.append(Notification(user_id=user_id, message=message, timestamp=datetime.now()))
