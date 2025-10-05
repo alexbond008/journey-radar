@@ -1,13 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { MapPin, Navigation, X, RotateCcw } from 'lucide-react';
+import { MapPin, Navigation, X, RotateCcw, Train } from 'lucide-react';
 import { useStops } from '@/hooks/useStops';
 import { useRoutes } from '@/hooks/useRoutes';
 import { Stop } from '@/types';
 import { useDebounce } from '@/hooks/useDebounce';
 import { routesService } from '@/services/routesService';
 import { toast } from '@/hooks/use-toast';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface RouteSelectorPanelProps {
   isOpen: boolean;
@@ -16,19 +23,64 @@ interface RouteSelectorPanelProps {
 
 export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps) {
   const { searchStops } = useStops();
-  const { setRouteSegments } = useRoutes();
+  const { routes, setRouteSegments } = useRoutes();
 
   const [startQuery, setStartQuery] = useState('');
   const [destQuery, setDestQuery] = useState('');
   const [startStop, setStartStop] = useState<Stop | null>(null);
   const [destStop, setDestStop] = useState<Stop | null>(null);
   const [loading, setLoading] = useState(false);
+  const [selectedLineFilter, setSelectedLineFilter] = useState<string>('all');
+  const [availableLines, setAvailableLines] = useState<string[]>([]);
 
   const debouncedStartQuery = useDebounce(startQuery, 300);
   const debouncedDestQuery = useDebounce(destQuery, 300);
 
-  const startSuggestions = debouncedStartQuery ? searchStops(debouncedStartQuery).slice(0, 5) : [];
-  const destSuggestions = debouncedDestQuery ? searchStops(debouncedDestQuery).slice(0, 5) : [];
+  // Load available lines
+  useEffect(() => {
+    const loadLines = async () => {
+      try {
+        const lines = await routesService.getAllLines();
+        setAvailableLines(lines);
+      } catch (error) {
+        console.error('Failed to load lines:', error);
+      }
+    };
+    if (isOpen) {
+      loadLines();
+    }
+  }, [isOpen]);
+
+  // Helper function to filter stops by selected line
+  const filterStopsByLine = (stops: Stop[]): Stop[] => {
+    if (selectedLineFilter === 'all') return stops;
+    
+    // Find the selected line route
+    const selectedRoute = routes.find(r => r.number === selectedLineFilter);
+    if (!selectedRoute) return stops;
+    
+    // Filter stops that belong to the selected line
+    const lineStopIds = new Set(selectedRoute.stops.map(s => s.id));
+    return stops.filter(stop => lineStopIds.has(stop.id));
+  };
+
+  // Helper function to get lines for a stop
+  const getLinesForStop = (stop: Stop): string[] => {
+    const stopLines: string[] = [];
+    routes.forEach(route => {
+      if (route.stops.some(s => s.id === stop.id)) {
+        stopLines.push(route.number);
+      }
+    });
+    return stopLines;
+  };
+
+  const startSuggestions = debouncedStartQuery 
+    ? filterStopsByLine(searchStops(debouncedStartQuery)).slice(0, 8) 
+    : [];
+  const destSuggestions = debouncedDestQuery 
+    ? filterStopsByLine(searchStops(debouncedDestQuery)).slice(0, 8) 
+    : [];
 
   const handleFindRoutes = async () => {
     if (!startStop || !destStop) {
@@ -84,6 +136,7 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
     setDestQuery('');
     setStartStop(null);
     setDestStop(null);
+    setSelectedLineFilter('all');
     setRouteSegments(null);
   };
 
@@ -108,6 +161,17 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
           </div>
 
           <div className="space-y-6">
+            {/* Line Filter */}
+            <div>
+            
+           
+              {selectedLineFilter !== 'all' && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Showing only stops on Line {selectedLineFilter}
+                </p>
+              )}
+            </div>
+
             {/* Start Stop */}
             <div className="relative">
               <label className="block text-sm font-medium text-card-foreground mb-2">
@@ -123,19 +187,34 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
                 />
               </div>
               {startSuggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-md shadow-lg z-20">
-                  {startSuggestions.map((stop) => (
-                    <button
-                      key={stop.id}
-                      className="w-full px-4 py-3 text-left hover:bg-secondary transition-colors border-b border-border last:border-b-0"
-                      onClick={() => {
-                        setStartQuery(`${stop.code} - ${stop.name}`);
-                        setStartStop(stop);
-                      }}
-                    >
-                      <div className="font-medium text-base">{stop.code} - {stop.name}</div>
-                    </button>
-                  ))}
+                <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-md shadow-lg z-20 max-h-80 overflow-y-auto">
+                  {startSuggestions.map((stop) => {
+                    const stopLines = getLinesForStop(stop);
+                    return (
+                      <button
+                        key={stop.id}
+                        className="w-full px-4 py-3 text-left hover:bg-secondary transition-colors border-b border-border last:border-b-0"
+                        onClick={() => {
+                          setStartQuery(`${stop.code} - ${stop.name}`);
+                          setStartStop(stop);
+                        }}
+                      >
+                        <div className="font-medium text-base">{stop.code} - {stop.name}</div>
+                        {stopLines.length > 0 && (
+                          <div className="flex gap-1 mt-1 flex-wrap">
+                            {stopLines.map((line) => (
+                              <span
+                                key={line}
+                                className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary"
+                              >
+                                Line {line}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -155,19 +234,34 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
                 />
               </div>
               {destSuggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-md shadow-lg z-20">
-                  {destSuggestions.map((stop) => (
-                    <button
-                      key={stop.id}
-                      className="w-full px-4 py-3 text-left hover:bg-secondary transition-colors border-b border-border last:border-b-0"
-                      onClick={() => {
-                        setDestQuery(`${stop.code} - ${stop.name}`);
-                        setDestStop(stop);
-                      }}
-                    >
-                      <div className="font-medium text-base">{stop.code} - {stop.name}</div>
-                    </button>
-                  ))}
+                <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-md shadow-lg z-20 max-h-80 overflow-y-auto">
+                  {destSuggestions.map((stop) => {
+                    const stopLines = getLinesForStop(stop);
+                    return (
+                      <button
+                        key={stop.id}
+                        className="w-full px-4 py-3 text-left hover:bg-secondary transition-colors border-b border-border last:border-b-0"
+                        onClick={() => {
+                          setDestQuery(`${stop.code} - ${stop.name}`);
+                          setDestStop(stop);
+                        }}
+                      >
+                        <div className="font-medium text-base">{stop.code} - {stop.name}</div>
+                        {stopLines.length > 0 && (
+                          <div className="flex gap-1 mt-1 flex-wrap">
+                            {stopLines.map((line) => (
+                              <span
+                                key={line}
+                                className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary"
+                              >
+                                Line {line}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
