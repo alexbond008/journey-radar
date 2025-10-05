@@ -5,8 +5,10 @@ import { Card } from '@/components/ui/card';
 import { MapPin, Navigation, X, RotateCcw } from 'lucide-react';
 import { useStops } from '@/hooks/useStops';
 import { useRoutes } from '@/hooks/useRoutes';
-import { BusRoute } from '@/types';
+import { Stop } from '@/types';
 import { useDebounce } from '@/hooks/useDebounce';
+import { routesService } from '@/services/routesService';
+import { toast } from '@/hooks/use-toast';
 
 interface RouteSelectorPanelProps {
   isOpen: boolean;
@@ -15,14 +17,14 @@ interface RouteSelectorPanelProps {
 
 export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps) {
   const { searchStops } = useStops();
-  const { routes, selectRoute } = useRoutes();
+  const { setRouteSegments } = useRoutes();
 
   const [startQuery, setStartQuery] = useState('');
   const [destQuery, setDestQuery] = useState('');
-  const [startStopId, setStartStopId] = useState<number | null>(null);
-  const [destStopId, setDestStopId] = useState<number | null>(null);
-  const [routeResults, setRouteResults] = useState<BusRoute[]>([]);
+  const [startStop, setStartStop] = useState<Stop | null>(null);
+  const [destStop, setDestStop] = useState<Stop | null>(null);
   const [loading, setLoading] = useState(false);
+  const [routeFound, setRouteFound] = useState(false);
 
   const debouncedStartQuery = useDebounce(startQuery, 300);
   const debouncedDestQuery = useDebounce(destQuery, 300);
@@ -30,52 +32,62 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
   const startSuggestions = debouncedStartQuery ? searchStops(debouncedStartQuery).slice(0, 5) : [];
   const destSuggestions = debouncedDestQuery ? searchStops(debouncedDestQuery).slice(0, 5) : [];
 
-  const handleFindRoutes = () => {
-    if (!startStopId || !destStopId) {
-      console.log('Missing stop IDs:', { startStopId, destStopId });
+  const handleFindRoutes = async () => {
+    if (!startStop || !destStop) {
+      toast({
+        title: 'Missing stops',
+        description: 'Please select both start and destination stops',
+        variant: 'destructive',
+      });
       return;
     }
 
-    console.log('Finding routes between stops:', { startStopId, destStopId });
-    console.log('Available routes:', routes.length);
+    console.log('Finding route between stops:', { 
+      start: startStop.name, 
+      end: destStop.name 
+    });
 
     setLoading(true);
+    setRouteFound(false);
     try {
-      // Client-side filtering: find routes that contain both stops
-      const matchingRoutes = routes.filter(route => {
-        const stopIds = route.stops.map(stop => stop.id);
-        const startIndex = stopIds.indexOf(startStopId);
-        const destIndex = stopIds.indexOf(destStopId);
-        console.log(`Route ${route.number} (${route.name}):`, {
-          stopIds: stopIds.slice(0, 5),
-          startIndex,
-          destIndex,
-          matches: startIndex !== -1 && destIndex !== -1 && startIndex < destIndex
-        });
-        // Both stops must exist and start must come before destination
-        return startIndex !== -1 && destIndex !== -1 && startIndex < destIndex;
-      });
+      const segments = await routesService.findRoute(startStop, destStop);
       
-      console.log('Found matching routes:', matchingRoutes.length);
-      setRouteResults(matchingRoutes);
+      if (segments && Object.keys(segments).length > 0) {
+        console.log('Route segments received:', segments);
+        setRouteSegments(segments);
+        setRouteFound(true);
+        toast({
+          title: 'Route found!',
+          description: `Found ${Object.keys(segments).length} segment(s) for your journey`,
+        });
+      } else {
+        toast({
+          title: 'No route found',
+          description: 'Could not find a route between these stops',
+          variant: 'destructive',
+        });
+        setRouteSegments(null);
+      }
     } catch (error) {
-      console.error('Failed to search routes:', error);
+      console.error('Failed to find route:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to find route. Please try again.',
+        variant: 'destructive',
+      });
+      setRouteSegments(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSelectRoute = (routeId: number) => {
-    selectRoute(routeId);
-    onClose();
-  };
-
   const handleClearFields = () => {
     setStartQuery('');
     setDestQuery('');
-    setStartStopId(null);
-    setDestStopId(null);
-    setRouteResults([]);
+    setStartStop(null);
+    setDestStop(null);
+    setRouteFound(false);
+    setRouteSegments(null);
   };
 
   if (!isOpen) return null;
@@ -121,7 +133,7 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
                       className="w-full px-4 py-3 text-left hover:bg-secondary transition-colors border-b border-border last:border-b-0"
                       onClick={() => {
                         setStartQuery(`${stop.code} - ${stop.name}`);
-                        setStartStopId(stop.id);
+                        setStartStop(stop);
                       }}
                     >
                       <div className="font-medium text-base">{stop.code} - {stop.name}</div>
@@ -153,7 +165,7 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
                       className="w-full px-4 py-3 text-left hover:bg-secondary transition-colors border-b border-border last:border-b-0"
                       onClick={() => {
                         setDestQuery(`${stop.code} - ${stop.name}`);
-                        setDestStopId(stop.id);
+                        setDestStop(stop);
                       }}
                     >
                       <div className="font-medium text-base">{stop.code} - {stop.name}</div>
@@ -166,7 +178,7 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
             <div className="flex gap-2">
               <Button
                 onClick={handleFindRoutes}
-                disabled={!startStopId || !destStopId || loading}
+                disabled={!startStop || !destStop || loading}
                 className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base font-semibold"
               >
                 {loading ? 'Searching...' : 'Find Routes'}
@@ -181,33 +193,26 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
               </Button>
             </div>
 
-            {/* Route Results */}
-            {routeResults.length > 0 && (
-              <div className="space-y-3 mt-6">
-                <h3 className="text-lg font-semibold text-card-foreground">Available Routes</h3>
-                <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-                  {routeResults.map((route) => (
-                    <Card
-                      key={route.id}
-                      className="p-5 cursor-pointer hover:bg-secondary/50 transition-colors"
-                      onClick={() => handleSelectRoute(route.id)}
+            {/* Route Found Message */}
+            {routeFound && (
+              <div className="mt-6">
+                <Card className="p-5 bg-primary/10 border-primary">
+                  <div className="text-center">
+                    <div className="font-semibold text-lg text-primary mb-2">
+                      ✓ Route found and displayed on map!
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      The route is now shown on the map with different colors for each segment.
+                    </div>
+                    <Button
+                      onClick={onClose}
+                      className="mt-4"
+                      variant="outline"
                     >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-bold text-lg">{route.number} - {route.name}</div>
-                          <div className="text-sm text-muted-foreground mt-1">
-                            {route.stops.length} stops · {route.estimatedDuration || 'N/A'} min
-                          </div>
-                          {route.activeIncidentIds && route.activeIncidentIds.length > 0 && (
-                            <div className="text-sm text-warning mt-1">
-                              ⚠️ {route.activeIncidentIds.length} incident(s)
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
+                      Close & View Map
+                    </Button>
+                  </div>
+                </Card>
               </div>
             )}
           </div>

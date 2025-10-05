@@ -1,14 +1,16 @@
 import { createContext, useState, useEffect, ReactNode } from 'react';
 import { BusRoute } from '@/types';
-import { routesService } from '@/services/routesService';
+import { routesService, RouteSegments } from '@/services/routesService';
 
 export interface RoutesContextType {
   routes: BusRoute[];
   selectedRoute: BusRoute | null;
+  routeSegments: RouteSegments | null;
   loading: boolean;
   error: string | null;
   fetchRoutes: () => Promise<void>;
   selectRoute: (routeId: number | string) => void;
+  setRouteSegments: (segments: RouteSegments | null) => void;
   clearSelectedRoute: () => void;
 }
 
@@ -21,6 +23,7 @@ interface RoutesProviderProps {
 export function RoutesProvider({ children }: RoutesProviderProps) {
   const [routes, setRoutes] = useState<BusRoute[]>([]);
   const [selectedRoute, setSelectedRoute] = useState<BusRoute | null>(null);
+  const [routeSegments, setRouteSegments] = useState<RouteSegments | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,10 +46,13 @@ export function RoutesProvider({ children }: RoutesProviderProps) {
     const route = routes.find((r) => r.id === Number(routeId));
     console.log('Found route:', route ? { id: route.id, number: route.number, name: route.name } : 'null');
     setSelectedRoute(route || null);
+    // Clear route segments when selecting a single route
+    setRouteSegments(null);
   };
 
   const clearSelectedRoute = () => {
     setSelectedRoute(null);
+    setRouteSegments(null);
   };
 
   useEffect(() => {
@@ -56,10 +62,12 @@ export function RoutesProvider({ children }: RoutesProviderProps) {
   const value: RoutesContextType = {
     routes,
     selectedRoute,
+    routeSegments,
     loading,
     error,
     fetchRoutes,
     selectRoute,
+    setRouteSegments,
     clearSelectedRoute,
   };
 

@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./fastapi_app
+      dockerfile: Dockerfile
+    container_name: journey-radar-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./fastapi_app:/app
+    networks:
+      - journey-radar-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./journey-radar
+      dockerfile: Dockerfile
+    container_name: journey-radar-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8080
+    volumes:
+      - ./journey-radar:/app
+      - /app/node_modules
+    networks:
+      - journey-radar-network
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  journey-radar-network:
+    driver: bridge
+

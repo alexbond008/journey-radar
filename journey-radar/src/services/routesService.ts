@@ -1,6 +1,18 @@
 import api from './api';
 import { BusRoute, Stop } from '@/types';
 
+export interface RouteSegment {
+  id: number;
+  name: string;
+  number?: string;
+  stops: Stop[];
+  time_table?: any[];
+}
+
+export interface RouteSegments {
+  [segmentId: string]: RouteSegment;
+}
+
 export const routesService = {
 
   // Get all routes with polylines
@@ -30,6 +42,15 @@ export const routesService = {
   // Get stops for a specific route
   async getStopsForRoute(lineId: number): Promise<Stop[]> {
     const response = await api.get<Stop[]>(`/info/get_stops_for_line?line_id=${lineId}`);
+    return response.data;
+  },
+
+  // Find route between two stops
+  async findRoute(startStop: Stop, endStop: Stop): Promise<RouteSegments | null> {
+    const response = await api.post<RouteSegments>('/info/get_route', {
+      start: startStop,
+      end: endStop,
+    });
     return response.data;
   },
 };

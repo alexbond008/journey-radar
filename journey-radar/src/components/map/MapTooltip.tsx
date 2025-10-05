@@ -1,5 +1,6 @@
 import { Event } from '@/types';
-import { MessageCircle, Info } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
+import { getIncidentIcon } from '@/utils/helpers';
 
 export type TooltipType = 'event' | 'chat';
 
@@ -11,11 +12,12 @@ interface MapTooltipProps {
 
 export function MapTooltip({ event, type, onChatClick }: MapTooltipProps) {
   if (type === 'event') {
+    const emoji = getIncidentIcon(event.type);
     return (
       <div className="p-3 min-w-[200px]">
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex items-center gap-2">
-            <Info className="w-4 h-4 text-blue-500" />
+            <span className="text-2xl">{emoji}</span>
             <strong className="text-sm font-semibold text-gray-900">
               {event.type.toUpperCase().replace('_', ' ')}
             </strong>
@@ -63,14 +65,12 @@ export function MapTooltip({ event, type, onChatClick }: MapTooltipProps) {
 // Helper function to create HTML string for Leaflet popup
 export function createTooltipHTML(event: Event, type: TooltipType): string {
   if (type === 'event') {
+    const emoji = getIncidentIcon(event.type);
     return `
       <div style="padding: 12px; min-width: 200px; font-family: system-ui, -apple-system, sans-serif;">
         <div style="display: flex; align-items: start; justify-content: space-between; gap: 8px; margin-bottom: 8px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <svg style="width: 16px; height: 16px; color: #3b82f6;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
-              <path d="M12 16v-4M12 8h.01" stroke-width="2" stroke-linecap="round"></path>
-            </svg>
+            <span style="font-size: 24px;">${emoji}</span>
             <strong style="font-size: 14px; font-weight: 600; color: #111827;">
               ${event.type.toUpperCase().replace(/_/g, ' ')}
             </strong>

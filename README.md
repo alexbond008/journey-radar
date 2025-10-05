@@ -38,5 +38,44 @@ Journey-Radar is a commuter assistance application designed to help users plan a
 
 ---
 
+## Getting Started  
+
+### Quick Start with Docker (Recommended)
+
+The easiest way to run Journey-Radar is using Docker Compose:
+
+```bash
+# Start both frontend and backend
+docker-compose up
+
+# Or run in detached mode
+docker-compose up -d
+```
+
+Access the application:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8080
+
+For detailed Docker setup instructions, see [DOCKER_SETUP.md](DOCKER_SETUP.md).
+
+### Manual Setup
+
+#### Backend (FastAPI)
+```bash
+cd fastapi_app
+pip install uv
+uv sync
+uv run uvicorn main:app --host 0.0.0.0 --port 8080
+```
+
+#### Frontend (React + Vite)
+```bash
+cd journey-radar
+npm install
+npm run dev
+```
+
+---
+
 ## Summary  
 Journey-Radar provides commuters with a clear and reliable overview of possible disruptions during their travel. By combining **user reports** and **trusted data sources**, it helps distinguish between potential and confirmed incidents, improving trust and decision-making for daily commuters.  

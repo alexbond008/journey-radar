@@ -10,13 +10,13 @@ import { useEvents } from '@/hooks/useEvents';
 import { useRoutes } from '@/hooks/useRoutes';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { BottomNavigation } from '@/components/layout/BottomNavigation';
-import { X, Check, MapPin, Info, MessageCircle } from 'lucide-react';
+import { X, Check, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TooltipType } from '@/components/map/MapTooltip';
 
 export function MapPage() {
   const { events } = useEvents();
-  const { selectedRoute, clearSelectedRoute } = useRoutes();
+  const { selectedRoute, routeSegments, clearSelectedRoute } = useRoutes();
   const { latitude, longitude } = useGeolocation(true);
 
   const [routePanelOpen, setRoutePanelOpen] = useState(false);
@@ -25,8 +25,9 @@ export function MapPage() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [pinPlacementMode, setPinPlacementMode] = useState(false);
   const [pinnedLocation, setPinnedLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [tooltipType, setTooltipType] = useState<TooltipType>('event');
+  const [tooltipType] = useState<TooltipType>('event');
   const [chatEventContext, setChatEventContext] = useState<string | null>(null);
+  const [centerRouteFunc, setCenterRouteFunc] = useState<(() => void) | null>(null);
 
   const userLocation =
     latitude && longitude ? { lat: latitude, lng: longitude } : null;
@@ -69,15 +70,111 @@ export function MapPage() {
     setChatEventContext(null);
   };
 
+  const handleMapReady = (centerRoute: () => void) => {
+    setCenterRouteFunc(() => centerRoute);
+  };
+
+  const handleCenterOnRoute = () => {
+    if (centerRouteFunc) {
+      centerRouteFunc();
+    }
+  };
+
   return (
     <div className="h-screen flex flex-col bg-background">
       <Header onRoutesClick={() => setRoutePanelOpen(true)} />
+      
+      {/* Selected Route Bar */}
+      {selectedRoute && (
+        <div className="bg-card/80 backdrop-blur-sm border-b border-border shadow-sm px-4 py-2.5 flex items-center justify-between z-[999] animate-in slide-in-from-top duration-300">
+          <div 
+            className="flex items-center gap-3 flex-1 cursor-pointer hover:bg-muted/50 rounded-md -ml-2 pl-2 py-1 transition-colors"
+            onClick={handleCenterOnRoute}
+            title="Click to center map on route"
+          >
+            <div className="w-9 h-9 bg-primary text-primary-foreground rounded-md flex items-center justify-center font-bold text-sm shadow-sm">
+              {selectedRoute.number}
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-card-foreground">
+                {selectedRoute.name}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {selectedRoute.stops.length} stops
+                {selectedRoute.activeIncidentIds && selectedRoute.activeIncidentIds.length > 0 && (
+                  <span className="ml-2 text-warning">
+                    ⚠️ {selectedRoute.activeIncidentIds.length} incident(s)
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 rounded-md hover:bg-destructive/20"
+            onClick={clearSelectedRoute}
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
+
+      {/* Route Segments Bar */}
+      {routeSegments && Object.keys(routeSegments).length > 0 && (
+        <div className="bg-card/80 backdrop-blur-sm border-b border-border shadow-sm px-4 py-2.5 flex items-center justify-between z-[999] animate-in slide-in-from-top duration-300">
+          <div 
+            className="flex items-center gap-3 flex-1 cursor-pointer hover:bg-muted/50 rounded-md -ml-2 pl-2 py-1 transition-colors"
+            onClick={handleCenterOnRoute}
+            title="Click to center map on route"
+          >
+            <div className="w-9 h-9 bg-primary text-primary-foreground rounded-md flex items-center justify-center font-bold text-sm shadow-sm">
+              {Object.keys(routeSegments).length}
+            </div>
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-card-foreground">
+                {Object.entries(routeSegments).map(([segmentId, segment]: [string, any], index) => {
+                  const isLastSegment = index === Object.entries(routeSegments).length - 1;
+                  const startStop = segment.stops[0];
+                  const endStop = segment.stops[segment.stops.length - 1];
+                  
+                  return (
+                    <span key={segmentId}>
+                      {startStop.name} → {endStop.name}
+                      {!isLastSegment && (
+                        <span className="text-xs text-warning mx-2">
+                          🔄 Transit
+                        </span>
+                      )}
+                    </span>
+                  );
+                })}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {Object.keys(routeSegments).length} segment(s)
+                {Object.keys(routeSegments).length > 1 && (
+                  <span className="ml-1">with {Object.keys(routeSegments).length - 1} transit(s)</span>
+                )}
+              </div>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 rounded-md hover:bg-destructive/20"
+            onClick={clearSelectedRoute}
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
       
       <div className="flex-1 relative">
         <div className="absolute inset-0 z-0">
           <MapView
             events={events}
             selectedRoute={selectedRoute}
+            routeSegments={routeSegments}
             userLocation={userLocation}
             onMarkerClick={setSelectedEventId}
             onChatClick={handleChatClick}
@@ -85,33 +182,11 @@ export function MapPage() {
             pinnedLocation={pinnedLocation}
             onPinPlaced={handlePinMoved}
             tooltipType={tooltipType}
+            onMapReady={handleMapReady}
           />
         </div>
 
         
-        {/* Selected Route Badge */}
-        {selectedRoute && (
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[999] animate-in slide-in-from-top duration-300">
-            <div className="bg-card border-2 border-primary shadow-lg rounded-full px-6 py-3 flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-sm">
-                  {selectedRoute.number}
-                </div>
-                <div className="text-sm font-semibold text-card-foreground">
-                  {selectedRoute.name}
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0 rounded-full hover:bg-destructive/20"
-                onClick={clearSelectedRoute}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        )}
 
         {/* Pin Placement Instructions */}
         {pinPlacementMode && (

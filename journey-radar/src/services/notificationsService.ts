@@ -7,7 +7,7 @@ export const notificationsService = {
    */
   getNotifications: async (userId: number): Promise<Notification[]> => {
     try {
-      const response = await api.get<Notification[]>(`/notifications/${userId}`);
+      const response = await api.get<Notification[]>(`/info/notifications/${userId}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching notifications:', error);

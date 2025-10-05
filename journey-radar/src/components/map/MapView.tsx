@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { Event } from '@/types';
-import { getIncidentColor } from '@/utils/helpers';
+import { getIncidentIcon } from '@/utils/helpers';
 import { BusRoute } from '@/types';
 import { createTooltipHTML, TooltipType } from './MapTooltip';
+import { RouteSegments } from '@/services/routesService';
 
 interface MapViewProps {
   events: Event[];
   selectedRoute: BusRoute | null;
+  routeSegments?: RouteSegments | null;
   userLocation: { lat: number; lng: number } | null;
   onMarkerClick?: (eventId: string) => void;
   onChatClick?: (eventId: string) => void;
@@ -15,15 +17,17 @@ interface MapViewProps {
   pinnedLocation?: { lat: number; lng: number } | null;
   onPinPlaced?: (location: { lat: number; lng: number }) => void;
   tooltipType?: TooltipType;
+  onMapReady?: (centerRoute: () => void) => void;
 }
 
-export function MapView({ events, selectedRoute, userLocation, onMarkerClick, onChatClick, pinPlacementMode, pinnedLocation, onPinPlaced, tooltipType = 'event' }: MapViewProps) {
+export function MapView({ events, selectedRoute, routeSegments, userLocation, onMarkerClick, onChatClick, pinPlacementMode, pinnedLocation, onPinPlaced, tooltipType = 'event', onMapReady }: MapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
   const stopMarkersRef = useRef<L.Marker[]>([]);
   const userMarkerRef = useRef<L.Marker | null>(null);
   const routePolylineRef = useRef<L.Polyline | null>(null);
+  const routeSegmentPolylinesRef = useRef<L.Polyline[]>([]);
   const pinMarkerRef = useRef<L.Marker | null>(null);
   const [isClient, setIsClient] = useState(false);
 
@@ -48,6 +52,42 @@ export function MapView({ events, selectedRoute, userLocation, onMarkerClick, on
       }
     };
   }, [onChatClick]);
+
+  // Function to center the map on the current route
+  const centerOnRoute = () => {
+    if (!mapInstanceRef.current) return;
+
+    // Center on route segments if available
+    if (routeSegmentPolylinesRef.current.length > 0) {
+      const allBounds: L.LatLngBounds[] = [];
+      routeSegmentPolylinesRef.current.forEach(polyline => {
+        allBounds.push(polyline.getBounds());
+      });
+      
+      if (allBounds.length > 0) {
+        const combinedBounds = allBounds.reduce((acc, bounds) => acc.extend(bounds), allBounds[0]);
+        mapInstanceRef.current.fitBounds(combinedBounds, {
+          padding: [50, 50],
+        });
+        console.log('Map centered on route segments');
+      }
+    }
+    // Otherwise center on single route if available
+    else if (routePolylineRef.current) {
+      const bounds = routePolylineRef.current.getBounds();
+      mapInstanceRef.current.fitBounds(bounds, {
+        padding: [50, 50],
+      });
+      console.log('Map centered on route');
+    }
+  };
+
+  // Expose centerOnRoute function to parent component
+  useEffect(() => {
+    if (onMapReady && mapInstanceRef.current) {
+      onMapReady(centerOnRoute);
+    }
+  }, [onMapReady, routeSegments, selectedRoute]);
 
   useEffect(() => {
     if (!isClient || !mapRef.current) return;
@@ -94,34 +134,29 @@ export function MapView({ events, selectedRoute, userLocation, onMarkerClick, on
           return;
         }
         
-        const color = getIncidentColor(event.type);
+        const emoji = getIncidentIcon(event.type);
         const icon = L.divIcon({
           className: 'custom-marker',
           html: `
             <div style="
-              width: 40px;
-              height: 40px;
-              background-color: ${color};
-              border: 4px solid ${color}dd;
+              width: 44px;
+              height: 44px;
+              background-color: rgba(255, 255, 255, 0.95);
+              border: 3px solid rgba(0, 0, 0, 0.1);
               border-radius: 50%;
               display: flex;
               align-items: center;
               justify-content: center;
-              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(255, 255, 255, 0.3);
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
               cursor: pointer;
               transition: transform 0.2s;
+              font-size: 24px;
             ">
-              <div style="
-                width: 14px;
-                height: 14px;
-                background-color: white;
-                border-radius: 50%;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-              "></div>
+              ${emoji}
             </div>
           `,
-          iconSize: [40, 40],
-          iconAnchor: [20, 20],
+          iconSize: [44, 44],
+          iconAnchor: [22, 22],
         });
 
         const marker = L.marker([event.location.lat, event.location.lng], { icon }).addTo(
@@ -150,16 +185,140 @@ export function MapView({ events, selectedRoute, userLocation, onMarkerClick, on
       stopMarkersRef.current.forEach((marker) => marker.remove());
       stopMarkersRef.current = [];
 
-      // Draw route polyline if selected
-      if (selectedRoute) {
-        console.log('Drawing route:', selectedRoute.number, selectedRoute.name);
-        console.log('Route has', selectedRoute.stops?.length || 0, 'stops');
+      // Draw route segments if provided (from route finding)
+      if (routeSegments && Object.keys(routeSegments).length > 0) {
+        console.log('Drawing route segments:', Object.keys(routeSegments).length);
         
-        // Remove existing route polyline
+        // Remove existing route polylines
         if (routePolylineRef.current) {
           routePolylineRef.current.remove();
           routePolylineRef.current = null;
         }
+        routeSegmentPolylinesRef.current.forEach(polyline => polyline.remove());
+        routeSegmentPolylinesRef.current = [];
+
+        // Define colors for different segments
+        const segmentColors = [
+          '#3b82f6', // blue
+          '#ef4444', // red
+          '#22c55e', // green
+          '#f59e0b', // amber
+          '#8b5cf6', // violet
+          '#ec4899', // pink
+          '#14b8a6', // teal
+          '#f97316', // orange
+        ];
+
+        const allBounds: L.LatLngBounds[] = [];
+        let globalStopIndex = 0;
+
+        // Draw each segment with a different color
+        Object.entries(routeSegments).forEach(([segmentId, segment], index) => {
+          console.log(`Drawing segment ${segmentId}:`, segment.name, `with ${segment.stops.length} stops`);
+          
+          if (segment.stops && segment.stops.length > 0) {
+            const segmentColor = segmentColors[index % segmentColors.length];
+            
+            // Generate polyline from stops
+            const routeCoordinates: [number, number][] = segment.stops.map(stop => 
+              [stop.lat, stop.lon] as [number, number]
+            );
+
+            // Draw segment polyline
+            const polyline = L.polyline(routeCoordinates, {
+              color: segmentColor,
+              weight: 6,
+              opacity: 0.8,
+              smoothFactor: 1,
+            }).addTo(mapInstanceRef.current!);
+
+            // Add popup to polyline showing line info
+            polyline.bindPopup(`
+              <div style="color: #000; padding: 8px;">
+                <strong style="font-size: 14px;">Segment ${parseInt(segmentId)}</strong>
+                <p style="margin: 4px 0 0 0; font-size: 12px;">Line: ${segment.number || segment.id} - ${segment.name}</p>
+                <p style="margin: 2px 0 0 0; font-size: 11px; color: #666;">${segment.stops.length} stops</p>
+              </div>
+            `);
+
+            routeSegmentPolylinesRef.current.push(polyline);
+            allBounds.push(polyline.getBounds());
+
+            // Add stop markers along the segment
+            segment.stops.forEach((stop, stopIndex) => {
+              const isTransferStop = stopIndex === 0 && parseInt(segmentId) > 1;
+              const isLastStop = stopIndex === segment.stops.length - 1 && 
+                                  parseInt(segmentId) === Object.keys(routeSegments).length;
+              
+              const stopIcon = L.divIcon({
+                className: 'stop-marker',
+                html: `
+                  <div style="
+                    width: ${isTransferStop || isLastStop ? '20px' : '16px'};
+                    height: ${isTransferStop || isLastStop ? '20px' : '16px'};
+                    background-color: white;
+                    border: 3px solid ${segmentColor};
+                    border-radius: 50%;
+                    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+                    ${isTransferStop ? 'border-width: 4px;' : ''}
+                  "></div>
+                `,
+                iconSize: [isTransferStop || isLastStop ? 20 : 16, isTransferStop || isLastStop ? 20 : 16],
+                iconAnchor: [isTransferStop || isLastStop ? 10 : 8, isTransferStop || isLastStop ? 10 : 8],
+              });
+
+              const stopMarker = L.marker([stop.lat, stop.lon], { icon: stopIcon }).addTo(
+                mapInstanceRef.current!
+              );
+
+              const stopLabel = isTransferStop 
+                ? 'Transfer Stop' 
+                : isLastStop 
+                  ? 'Destination' 
+                  : stopIndex === 0 && parseInt(segmentId) === 1 
+                    ? 'Start' 
+                    : `Stop ${globalStopIndex + 1}`;
+
+              stopMarker.bindPopup(`
+                <div style="color: #000; padding: 8px; min-width: 140px;">
+                  <strong style="font-size: 13px; display: block; margin-bottom: 4px; color: ${segmentColor};">
+                    ${stopLabel}
+                  </strong>
+                  <p style="margin: 0; font-size: 12px; color: #555;">${stop.name}</p>
+                  <p style="margin: 2px 0 0 0; font-size: 11px; color: #888;">Code: ${stop.code}</p>
+                  <p style="margin: 4px 0 0 0; font-size: 11px; color: #666;">
+                    Segment ${parseInt(segmentId)}: Line ${segment.number || segment.id}
+                  </p>
+                </div>
+              `);
+
+              stopMarkersRef.current.push(stopMarker);
+              globalStopIndex++;
+            });
+          }
+        });
+
+        // Fit map to show all segments
+        if (allBounds.length > 0) {
+          const combinedBounds = allBounds.reduce((acc, bounds) => acc.extend(bounds), allBounds[0]);
+          mapInstanceRef.current!.fitBounds(combinedBounds, {
+            padding: [50, 50],
+          });
+          console.log('Map fitted to show all route segments');
+        }
+      } 
+      // Draw route polyline if selected (single route)
+      else if (selectedRoute) {
+        console.log('Drawing route:', selectedRoute.number, selectedRoute.name);
+        console.log('Route has', selectedRoute.stops?.length || 0, 'stops');
+        
+        // Remove existing route polylines
+        if (routePolylineRef.current) {
+          routePolylineRef.current.remove();
+          routePolylineRef.current = null;
+        }
+        routeSegmentPolylinesRef.current.forEach(polyline => polyline.remove());
+        routeSegmentPolylinesRef.current = [];
 
         // Generate polyline from stops if polyline property doesn't exist or is empty
         let routeCoordinates: [number, number][] = [];
@@ -235,11 +394,13 @@ export function MapView({ events, selectedRoute, userLocation, onMarkerClick, on
           console.log('No valid polyline or stops data available');
         }
       } else {
-        console.log('No route selected');
+        console.log('No route or segments selected');
         if (routePolylineRef.current) {
           routePolylineRef.current.remove();
           routePolylineRef.current = null;
         }
+        routeSegmentPolylinesRef.current.forEach(polyline => polyline.remove());
+        routeSegmentPolylinesRef.current = [];
       }
 
       // Add user location marker
@@ -384,7 +545,7 @@ export function MapView({ events, selectedRoute, userLocation, onMarkerClick, on
     };
 
     initMap();
-  }, [isClient, events, selectedRoute, userLocation, onMarkerClick, onChatClick, pinPlacementMode, pinnedLocation, onPinPlaced, tooltipType]);
+  }, [isClient, events, selectedRoute, routeSegments, userLocation, onMarkerClick, onChatClick, pinPlacementMode, pinnedLocation, onPinPlaced, tooltipType]);
 
   if (!isClient) {
     return (
