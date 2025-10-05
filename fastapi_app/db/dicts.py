@@ -1098,7 +1098,7 @@ events: Dict[int, Event] = {
         edge_affected=22,
         time=datetime(2024, 1, 15, 14, 30),
         event_type="delay",
-        reportedBy="system"
+        reportedBy="system",
     ),
     2: Event(
         id=2,
@@ -1110,7 +1110,7 @@ events: Dict[int, Event] = {
         edge_affected=23,
         time=datetime(2024, 1, 15, 16, 45),
         event_type="maintenance",
-        reportedBy="admin"
+        reportedBy="admin",
     ),
     3: Event(
         id=3,
@@ -1122,7 +1122,7 @@ events: Dict[int, Event] = {
         edge_affected=25,
         time=datetime(2024, 1, 15, 10, 15),
         event_type="cancellation",
-        reportedBy="system"
+        reportedBy="system",
     ),
     4: Event(
         id=4,
@@ -1133,6 +1133,18 @@ events: Dict[int, Event] = {
         location=LatLng(lat=50.0828134, lng=19.8919081),
         edge_affected=25,
         time=datetime(2024, 1, 15, 10, 15),
+        event_type="cancellation",
+        reportedBy="system",
+    ),
+    5: Event(
+        id=5,
+        type=IncidentType.CANCELLATION,
+        title="Alert RCB",
+        description="Powódź w RCB, przewidywane spore utrudnienia w ruchu",
+        timestamp=datetime(2024, 1, 15, 10, 15),
+        location=LatLng(lat=50.0819062, lng=19.9172491),  # KRAKÓW ŁOBZÓW (stop 26)
+        edge_affected=25,
+        time=datetime(2024, 1, 16, 9, 15),
         event_type="cancellation",
         reportedBy="system"
     )
