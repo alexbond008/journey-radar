@@ -1,5 +1,7 @@
 # Journey Radar
 
+![Małopolska Innowacyjna Logo](img_readme/malopolska-innowacyjna-logo.png)
+
 A comprehensive public transportation monitoring and incident reporting system for the Małopolska region in Poland. Journey Radar provides real-time route information, incident reporting, and community-driven event tracking for bus and train services.
 
 ## 🚀 Features
