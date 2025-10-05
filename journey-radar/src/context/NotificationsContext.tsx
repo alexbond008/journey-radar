@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { Notification } from '@/types';
 import { notificationsService } from '@/services/notificationsService';
 import { useAuth } from './AuthContext';
+import { toast } from 'sonner';
 
 interface NotificationsContextType {
   notifications: Notification[];
@@ -17,11 +18,28 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const { user, isAuthenticated } = useAuth();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const previousNotificationIdsRef = useRef<Set<number>>(new Set());
 
   const fetchNotifications = useCallback(async () => {
     if (!user?.id) return;
 
     const newNotifications = await notificationsService.getNotifications(user.id);
+    
+    // Check for new notifications that weren't in the previous set
+    const currentIds = new Set(newNotifications.map(n => n.id));
+    const newOnes = newNotifications.filter(n => !previousNotificationIdsRef.current.has(n.id));
+    
+    // Show toast for each new notification
+    newOnes.forEach(notification => {
+      toast.info(notification.message, {
+        duration: 5000,
+        position: 'top-center',
+      });
+    });
+    
+    // Update the previous notifications reference
+    previousNotificationIdsRef.current = currentIds;
+    
     setNotifications(newNotifications);
   }, [user?.id]);
 

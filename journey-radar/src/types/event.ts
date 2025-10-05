@@ -23,7 +23,7 @@ export interface Event {
   upvotes: number;        // Number of users confirming legitimacy
   downvotes: number;      // Number of users disputing legitimacy
   isResolved: boolean;    // Whether incident is still active
-  reportedBy: string;     // User identifier (can be anonymous)
+  reportedBy: number;     // User ID of the reporter
   edge_affected?: number; // Edge affected by the event
 }
 

@@ -9,7 +9,7 @@ export interface CreateEventPayload {
     lat: number;
     lng: number;
   };
-  reportedBy: string;
+  reportedBy: number;
   routeId?: string;
 }
 
@@ -33,7 +33,7 @@ interface EventResponse {
   upvotes: number;
   downvotes: number;
   isResolved: boolean;
-  reportedBy: string;
+  reportedBy: number;
   edge_affected?: number;
 }
 

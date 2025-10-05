@@ -9,6 +9,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { IncidentType } from '@/types';
 import { useEvents } from '@/hooks/useEvents';
+import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 
 interface ReportIncidentModalProps {
@@ -19,6 +20,7 @@ interface ReportIncidentModalProps {
 
 export function ReportIncidentModal({ isOpen, onClose, pinnedLocation }: ReportIncidentModalProps) {
   const { createEvent } = useEvents();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const incidentTypes = [
@@ -32,7 +34,7 @@ export function ReportIncidentModal({ isOpen, onClose, pinnedLocation }: ReportI
   ];
 
   const handleSelectIncident = async (selectedType: string) => {
-    if (loading || !pinnedLocation) return;
+    if (loading || !pinnedLocation || !user) return;
 
     const incident = incidentTypes.find(i => i.value === selectedType);
     if (!incident) return;
@@ -44,7 +46,7 @@ export function ReportIncidentModal({ isOpen, onClose, pinnedLocation }: ReportI
         title: incident.label,
         description: `${incident.label} reported by user`,
         location: pinnedLocation,
-        reportedBy: 'anonymous',
+        reportedBy: user.id,
       });
 
       toast.success('Incident reported successfully');
@@ -70,12 +72,13 @@ export function ReportIncidentModal({ isOpen, onClose, pinnedLocation }: ReportI
         <div className="py-4">
           <Select 
             onValueChange={handleSelectIncident} 
-            disabled={loading || !pinnedLocation}
+            disabled={loading || !pinnedLocation || !user}
           >
             <SelectTrigger className="w-full">
               <SelectValue 
                 placeholder={
                   loading ? "Submitting..." : 
+                  !user ? "Please log in first" :
                   !pinnedLocation ? "No location pinned" :
                   "Select incident type"
                 } 

@@ -2,7 +2,6 @@ import { Button } from '@/components/ui/button';
 import { Radar, Menu, Route } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { NotificationsDropdown } from './NotificationsDropdown';
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -34,7 +33,6 @@ export function Header({ onMenuClick, onRoutesClick }: HeaderProps) {
       </div>
       
       <div className="flex items-center gap-2">
-        {user && <NotificationsDropdown />}
         {onRoutesClick && (
           <Button
             onClick={onRoutesClick}
