@@ -123,6 +123,11 @@ async def report_event(event_data: EventCreate):
     #                                 e.type == event_data.type 
     #                                 and not e.isResolved]
     
+    # sum_reported_by_level = sum(users[e.reportedBy].level for e in all_events_on_edge_with_type if e.reportedBy in users)
+    # all_reporter_ids = [e.reportedBy for e in all_events_on_edge_with_type if e.reportedBy in users]
+
+    # print(f"Sum levels of reporters for events on this edge: {sum_reported_by_level}")
+    # if sum_reported_by_level >= 20:
     for user in users.values():
         if user.id == event_data.reportedBy:
             continue  # Don't notify the reporter
@@ -290,6 +295,14 @@ async def get_user_notifications(user_id: int) -> list[Notification]:
     return user_notifications
 
 
+@router.post("/assign_train/{user_id}")
+async def assign_train_to_user(user_id: int, train_id: int):
+    """Assign a train to a user (stub implementation)"""
+    user = users[user_id]
+    user.current_train_id = train_id
+    users[user_id] = user
+    
+    return {"message": f"Train {train_id} assigned to user {user_id}"}
 
 
 @router.get("/users")
