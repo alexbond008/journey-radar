@@ -146,6 +146,7 @@ export function IncidentsPage() {
       <ReportIncidentModal
         isOpen={reportModalOpen}
         onClose={() => setReportModalOpen(false)}
+        pinnedLocation={null}
       />
       <IncidentDetailModal
         event={selectedEvent}

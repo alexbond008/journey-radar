@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { MapView } from '@/components/map/MapView';
 import { Header } from '@/components/layout/Header';
 import { RouteSelectorPanel } from '@/components/route/RouteSelectorPanel';
+import { RouteStopsPanel } from '@/components/route/RouteStopsPanel';
 import { ReportIncidentModal } from '@/components/incident/ReportIncidentModal';
 import { IncidentDetailModal } from '@/components/incident/IncidentDetailModal';
 import { ActionButtonsMenu } from '@/components/common/ActionButtonsMenu';
@@ -10,7 +11,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useRoutes } from '@/hooks/useRoutes';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { BottomNavigation } from '@/components/layout/BottomNavigation';
-import { X, Check, MapPin } from 'lucide-react';
+import { X, Check, MapPin, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TooltipType } from '@/components/map/MapTooltip';
 
@@ -20,6 +21,7 @@ export function MapPage() {
   const { latitude, longitude } = useGeolocation(true);
 
   const [routePanelOpen, setRoutePanelOpen] = useState(false);
+  const [stopsPanelOpen, setStopsPanelOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [chatbotModalOpen, setChatbotModalOpen] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -169,14 +171,26 @@ export function MapPage() {
               </div>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 rounded-md hover:bg-destructive/20"
-            onClick={clearSelectedRoute}
-          >
-            <X className="w-4 h-4" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 px-3 rounded-md hover:bg-primary/10"
+              onClick={() => setStopsPanelOpen(true)}
+              title="View all stops"
+            >
+              <List className="w-4 h-4 mr-1" />
+              Stops
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 rounded-md hover:bg-destructive/20"
+              onClick={clearSelectedRoute}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       )}
       
@@ -251,6 +265,11 @@ export function MapPage() {
       <RouteSelectorPanel
         isOpen={routePanelOpen}
         onClose={handleRoutePanelClose}
+      />
+      <RouteStopsPanel
+        isOpen={stopsPanelOpen}
+        onClose={() => setStopsPanelOpen(false)}
+        routeSegments={routeSegments}
       />
       <ReportIncidentModal
         isOpen={reportModalOpen}

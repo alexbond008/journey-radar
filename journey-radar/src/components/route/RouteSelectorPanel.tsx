@@ -1,20 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { MapPin, Navigation, X, RotateCcw, Train } from 'lucide-react';
+import { MapPin, Navigation, X, RotateCcw } from 'lucide-react';
 import { useStops } from '@/hooks/useStops';
 import { useRoutes } from '@/hooks/useRoutes';
 import { Stop } from '@/types';
 import { useDebounce } from '@/hooks/useDebounce';
 import { routesService } from '@/services/routesService';
 import { toast } from '@/hooks/use-toast';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 interface RouteSelectorPanelProps {
   isOpen: boolean;
@@ -30,26 +23,10 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
   const [startStop, setStartStop] = useState<Stop | null>(null);
   const [destStop, setDestStop] = useState<Stop | null>(null);
   const [loading, setLoading] = useState(false);
-  const [selectedLineFilter, setSelectedLineFilter] = useState<string>('all');
-  const [availableLines, setAvailableLines] = useState<string[]>([]);
+  const [selectedLineFilter] = useState<string>('all');
 
   const debouncedStartQuery = useDebounce(startQuery, 300);
   const debouncedDestQuery = useDebounce(destQuery, 300);
-
-  // Load available lines
-  useEffect(() => {
-    const loadLines = async () => {
-      try {
-        const lines = await routesService.getAllLines();
-        setAvailableLines(lines);
-      } catch (error) {
-        console.error('Failed to load lines:', error);
-      }
-    };
-    if (isOpen) {
-      loadLines();
-    }
-  }, [isOpen]);
 
   // Helper function to filter stops by selected line
   const filterStopsByLine = (stops: Stop[]): Stop[] => {
@@ -136,7 +113,6 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
     setDestQuery('');
     setStartStop(null);
     setDestStop(null);
-    setSelectedLineFilter('all');
     setRouteSegments(null);
   };
 
@@ -161,17 +137,6 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
           </div>
 
           <div className="space-y-6">
-            {/* Line Filter */}
-            <div>
-            
-           
-              {selectedLineFilter !== 'all' && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Showing only stops on Line {selectedLineFilter}
-                </p>
-              )}
-            </div>
-
             {/* Start Stop */}
             <div className="relative">
               <label className="block text-sm font-medium text-card-foreground mb-2">
