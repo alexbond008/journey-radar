@@ -126,7 +126,7 @@ async def report_event(event_data: EventCreate):
     for user in users.values():
         train = trains[user.current_train_id]
         line = lines[train.line_id]
-        if edge in line.edges:
+        if edge.id in [e.id for e in line.edges]:
             notify_user(user.id, f"New event reported on your route {line.name}: {event_data.title}")
     
     return new_event
@@ -282,7 +282,7 @@ async def get_line_by_number(line_number: str):
     return line
 
 @router.get("/notifications/{user_id}")
-async def get_user_notifications(user_id: str) -> list[Notification]:
+async def get_user_notifications(user_id: int) -> list[Notification]:
     """Get notifications for a specific user (stub implementation)"""
     user_notifications = [n for n in notifications if n.user_id == user_id]
     return user_notifications

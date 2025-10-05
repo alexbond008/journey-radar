@@ -5,6 +5,7 @@ import logging
 
 # Simulacja tabel bazodanowych jako słowniki
 # Klucze to ID, wartości to obiekty modeli
+notifications: list[Notification] = []
 
 # Tabela Users
 users: Dict[int, User] = {
@@ -1219,9 +1220,6 @@ def my_print(lines_dict: Dict[int, Line]):
         
         print(f"   📊 Łącznie: {len(stations_in_order)} przystanków")
 
-
-
-notifications: list[Notification] = []
 
 if __name__ == "__main__":
     my_print(lines)
