@@ -3,6 +3,7 @@ import { Notification } from '@/types';
 import { notificationsService } from '@/services/notificationsService';
 import { useAuth } from './AuthContext';
 import { toast } from 'sonner';
+import { useEvents } from '@/hooks/useEvents';
 
 interface NotificationsContextType {
   notifications: Notification[];
@@ -19,6 +20,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   const { user, isAuthenticated } = useAuth();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const previousNotificationIdsRef = useRef<Set<number>>(new Set());
+  const { fetchEvents } = useEvents();
 
   const fetchNotifications = useCallback(async () => {
     if (!user?.id) return;
@@ -36,6 +38,15 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
         position: 'top-center',
       });
     });
+
+    // If there are new notifications, refresh events
+    if (newOnes.length > 0) {
+      try {
+        await fetchEvents();
+      } catch (e) {
+        // Swallow to avoid breaking notifications flow
+      }
+    }
     
     // Update the previous notifications reference
     previousNotificationIdsRef.current = currentIds;
@@ -54,6 +65,19 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     // Only poll when authenticated
     if (isAuthenticated && user?.id) {
+      // Load stored notifications for this user on mount
+      const storageKey = `notifications_${user.id}`;
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          const parsed: Notification[] = JSON.parse(saved);
+          setNotifications(parsed);
+          previousNotificationIdsRef.current = new Set(parsed.map(n => n.id));
+        }
+      } catch (e) {
+        localStorage.removeItem(storageKey);
+      }
+
       // Fetch immediately on mount
       fetchNotifications();
 
@@ -75,8 +99,28 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
+
+      // Clear stored notifications for the previous user
+      if (user?.id) {
+        try {
+          localStorage.removeItem(`notifications_${user.id}`);
+        } catch (e) {
+          // ignore
+        }
+      }
     }
   }, [isAuthenticated, user?.id, fetchNotifications]);
+
+  // Persist notifications whenever they change
+  useEffect(() => {
+    if (isAuthenticated && user?.id) {
+      try {
+        localStorage.setItem(`notifications_${user.id}`, JSON.stringify(notifications));
+      } catch (e) {
+        // ignore persistence errors
+      }
+    }
+  }, [notifications, isAuthenticated, user?.id]);
 
   return (
     <NotificationsContext.Provider

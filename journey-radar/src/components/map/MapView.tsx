@@ -12,7 +12,6 @@ interface MapViewProps {
   routeSegments?: RouteSegments | null;
   userLocation: { lat: number; lng: number } | null;
   onMarkerClick?: (eventId: string) => void;
-  onChatClick?: (eventId: string) => void;
   pinPlacementMode?: boolean;
   pinnedLocation?: { lat: number; lng: number } | null;
   onPinPlaced?: (location: { lat: number; lng: number }) => void;
@@ -20,7 +19,7 @@ interface MapViewProps {
   onMapReady?: (centerRoute: () => void) => void;
 }
 
-export function MapView({ events, selectedRoute, routeSegments, userLocation, onMarkerClick, onChatClick, pinPlacementMode, pinnedLocation, onPinPlaced, tooltipType = 'event', onMapReady }: MapViewProps) {
+export function MapView({ events, selectedRoute, routeSegments, userLocation, onMarkerClick, pinPlacementMode, pinnedLocation, onPinPlaced, tooltipType = 'event', onMapReady }: MapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
@@ -33,38 +32,18 @@ export function MapView({ events, selectedRoute, routeSegments, userLocation, on
 
   // Store callback refs to avoid stale closures
   const onMarkerClickRef = useRef(onMarkerClick);
-  const onChatClickRef = useRef(onChatClick);
   const onPinPlacedRef = useRef(onPinPlaced);
   const onMapReadyRef = useRef(onMapReady);
 
   // Update refs when callbacks change
   useEffect(() => {
     onMarkerClickRef.current = onMarkerClick;
-    onChatClickRef.current = onChatClick;
     onPinPlacedRef.current = onPinPlaced;
     onMapReadyRef.current = onMapReady;
-  }, [onMarkerClick, onChatClick, onPinPlaced, onMapReady]);
+  }, [onMarkerClick, onPinPlaced, onMapReady]);
 
   useEffect(() => {
     setIsClient(true);
-    
-    // Set up global handlers for tooltip interactions
-    if (typeof window !== 'undefined') {
-      (window as any).mapTooltipHandlers = {
-        openChat: (eventId: string) => {
-          if (onChatClickRef.current) {
-            onChatClickRef.current(eventId);
-          }
-        },
-      };
-    }
-
-    return () => {
-      // Cleanup
-      if (typeof window !== 'undefined') {
-        delete (window as any).mapTooltipHandlers;
-      }
-    };
   }, []);
 
   // Function to center the map on the current route

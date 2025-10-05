@@ -7,6 +7,8 @@ import { ReportIncidentModal } from '@/components/incident/ReportIncidentModal';
 import { IncidentDetailModal } from '@/components/incident/IncidentDetailModal';
 import { ActionButtonsMenu } from '@/components/common/ActionButtonsMenu';
 import { ChatbotModal } from '@/components/common/ChatbotModal';
+import { BuyTicketButton } from '@/components/common/BuyTicketButton';
+import { BuyTicketModal } from '@/components/common/BuyTicketModal';
 import { useEvents } from '@/hooks/useEvents';
 import { useRoutes } from '@/hooks/useRoutes';
 import { useGeolocation } from '@/hooks/useGeolocation';
@@ -24,11 +26,11 @@ export function MapPage() {
   const [stopsPanelOpen, setStopsPanelOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [chatbotModalOpen, setChatbotModalOpen] = useState(false);
+  const [buyTicketModalOpen, setBuyTicketModalOpen] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [pinPlacementMode, setPinPlacementMode] = useState(false);
   const [pinnedLocation, setPinnedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [tooltipType] = useState<TooltipType>('event');
-  const [chatEventContext, setChatEventContext] = useState<string | null>(null);
   const [centerRouteFunc, setCenterRouteFunc] = useState<(() => void) | null>(null);
 
   const userLocation =
@@ -60,16 +62,6 @@ export function MapPage() {
   const handleCloseReportModal = () => {
     setReportModalOpen(false);
     setPinnedLocation(null);
-  };
-
-  const handleChatClick = (eventId: string) => {
-    setChatEventContext(eventId);
-    setChatbotModalOpen(true);
-  };
-
-  const handleCloseChatModal = () => {
-    setChatbotModalOpen(false);
-    setChatEventContext(null);
   };
 
   const handleMapReady = (centerRoute: () => void) => {
@@ -202,7 +194,6 @@ export function MapPage() {
             routeSegments={routeSegments}
             userLocation={userLocation}
             onMarkerClick={setSelectedEventId}
-            onChatClick={handleChatClick}
             pinPlacementMode={pinPlacementMode}
             pinnedLocation={pinnedLocation}
             onPinPlaced={handlePinMoved}
@@ -257,6 +248,13 @@ export function MapPage() {
             />
           </div>
         )}
+
+        {/* Buy Ticket Button */}
+        {!pinPlacementMode && (
+          <div className="absolute bottom-24 left-6 z-[1100] md:bottom-6">
+            <BuyTicketButton onClick={() => setBuyTicketModalOpen(true)} />
+          </div>
+        )}
       </div>
 
       <BottomNavigation />
@@ -283,8 +281,12 @@ export function MapPage() {
       />
       <ChatbotModal
         isOpen={chatbotModalOpen}
-        onClose={handleCloseChatModal}
-        eventContext={chatEventContext}
+        onClose={() => setChatbotModalOpen(false)}
+        eventContext={null}
+      />
+      <BuyTicketModal
+        isOpen={buyTicketModalOpen}
+        onClose={() => setBuyTicketModalOpen(false)}
       />
     </div>
   );

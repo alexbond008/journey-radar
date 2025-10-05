@@ -63,20 +63,20 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <NotificationsProvider>
-          <TooltipProvider delayDuration={200}>
-            <StopsProvider>
-              <RoutesProvider>
-                <EventsProvider>
+        <TooltipProvider delayDuration={200}>
+          <StopsProvider>
+            <RoutesProvider>
+              <EventsProvider>
+                <NotificationsProvider>
                   <MapProvider>
                     <AppRoutes />
                     <Toaster position="top-center" />
                   </MapProvider>
-                </EventsProvider>
-              </RoutesProvider>
-            </StopsProvider>
-          </TooltipProvider>
-        </NotificationsProvider>
+                </NotificationsProvider>
+              </EventsProvider>
+            </RoutesProvider>
+          </StopsProvider>
+        </TooltipProvider>
       </AuthProvider>
     </BrowserRouter>
   );

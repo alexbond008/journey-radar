@@ -27,7 +27,7 @@ export function Header({ onMenuClick, onRoutesClick }: HeaderProps) {
             <h1 className="text-lg font-bold text-card-foreground">
               {user ? `Hi, ${user.name}` : 'Journey-Radar'}
             </h1>
-            <p className="text-xs text-muted-foreground">Real-time Transit</p>
+            <p className="text-xs text-muted-foreground">Journey Radar</p>
           </div>
         </Link>
       </div>

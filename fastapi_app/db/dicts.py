@@ -1099,7 +1099,7 @@ events: Dict[int, Event] = {
         edge_affected=22,
         time=datetime(2024, 1, 15, 14, 30),
         event_type="delay",
-        reportedBy="system",
+        reportedBy=1,
     ),
     2: Event(
         id=2,
@@ -1111,7 +1111,7 @@ events: Dict[int, Event] = {
         edge_affected=23,
         time=datetime(2024, 1, 15, 16, 45),
         event_type="maintenance",
-        reportedBy="admin",
+        reportedBy=2,
     ),
     3: Event(
         id=3,
@@ -1123,7 +1123,7 @@ events: Dict[int, Event] = {
         edge_affected=25,
         time=datetime(2024, 1, 15, 10, 15),
         event_type="cancellation",
-        reportedBy="system",
+        reportedBy=2,
     ),
     4: Event(
         id=4,
@@ -1135,7 +1135,7 @@ events: Dict[int, Event] = {
         edge_affected=25,
         time=datetime(2024, 1, 15, 10, 15),
         event_type="cancellation",
-        reportedBy="system",
+        reportedBy=2,
     ),
     5: Event(
         id=5,
@@ -1147,7 +1147,7 @@ events: Dict[int, Event] = {
         edge_affected=25,
         time=datetime(2024, 1, 16, 9, 15),
         event_type="cancellation",
-        reportedBy="system"
+        reportedBy=2,
     )
 }
 

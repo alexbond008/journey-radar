@@ -1,6 +1,8 @@
 import { createContext, useState, useEffect, ReactNode } from 'react';
 import { Event, EventFilters } from '@/types';
 import { eventsService, CreateEventPayload } from '@/services/eventsService';
+import { useAuth } from './AuthContext';
+
 
 export interface EventsContextType {
   events: Event[];
@@ -22,6 +24,7 @@ export function EventsProvider({ children }: EventsProviderProps) {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
   const fetchEvents = async () => {
     setLoading(true);
@@ -56,14 +59,11 @@ export function EventsProvider({ children }: EventsProviderProps) {
   const voteOnEvent = async (eventId: string, voteType: 'up' | 'down') => {
     try {
       // Generate a temporary userId (in production, this would come from auth)
-      const userIdStr = localStorage.getItem('userId') || String(Date.now());
-      if (!localStorage.getItem('userId')) {
-        localStorage.setItem('userId', userIdStr);
-      }
+      const userIdStr = user?.id || 1
       
       await eventsService.voteOnEvent({ 
         eventId: Number(eventId), 
-        userId: Number(userIdStr),
+        userId: userIdStr,
         voteType: voteType === 'up' ? 'upvote' : 'downvote'
       });
       await fetchEvents(); // Refresh events after voting
