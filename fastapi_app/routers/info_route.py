@@ -118,23 +118,23 @@ async def report_event(event_data: EventCreate):
 
     edge = edges[edge_id]
     # todo maybe later
-    # all_events_on_edge_with_type = [e for e in EVENTS_STORAGE if 
-    #                                 e.edge_affected == edge_id and 
-    #                                 e.type == event_data.type 
-    #                                 and not e.isResolved]
+    all_events_on_edge_with_type = [e for e in EVENTS_STORAGE if 
+                                    e.edge_affected == edge_id and 
+                                    e.type == event_data.type 
+                                    and not e.isResolved]
     
-    # sum_reported_by_level = sum(users[e.reportedBy].level for e in all_events_on_edge_with_type if e.reportedBy in users)
-    # all_reporter_ids = [e.reportedBy for e in all_events_on_edge_with_type if e.reportedBy in users]
+    sum_reported_by_level = sum(users[e.reportedBy].level for e in all_events_on_edge_with_type if e.reportedBy in users)
+    all_reporter_ids = [e.reportedBy for e in all_events_on_edge_with_type if e.reportedBy in users]
 
-    # print(f"Sum levels of reporters for events on this edge: {sum_reported_by_level}")
-    # if sum_reported_by_level >= 20:
-    for user in users.values():
-        if user.id == event_data.reportedBy:
-            continue  # Don't notify the reporter
-        train = trains[user.current_train_id]
-        line = lines[train.line_id]
-        if edge.id in [e.id for e in line.edges]:
-            notify_user(user.id, f"New event reported on your route {line.name}: {event_data.title}")
+    print(f"Sum levels of reporters for events on this edge: {sum_reported_by_level}")
+    if sum_reported_by_level >= 20:
+        for user in users.values():
+            if user.id in all_reporter_ids:
+                continue  # Don't notify the reporter
+            train = trains[user.current_train_id]
+            line = lines[train.line_id]
+            if edge.id in [e.id for e in line.edges]:
+                notify_user(user.id, f"New event reported on your route {line.name}: {event_data.title}")
     
     return new_event
 
