@@ -48,7 +48,7 @@ class Event(BaseModel):
     upvotes: int = 0
     downvotes: int = 0
     isResolved: bool = False
-    reportedBy: str
+    reportedBy: int
     edge_affected: Optional[int] = None
     time: Optional[datetime] = None
     event_type: Optional[str] = None
@@ -58,7 +58,7 @@ class EventCreate(BaseModel):
     title: str
     description: str
     location: LatLng
-    reportedBy: str
+    reportedBy: int
 
 class EventVote(BaseModel):
     eventId: int

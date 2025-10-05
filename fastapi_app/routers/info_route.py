@@ -124,6 +124,8 @@ async def report_event(event_data: EventCreate):
     #                                 and not e.isResolved]
     
     for user in users.values():
+        if user.id == event_data.reportedBy:
+            continue  # Don't notify the reporter
         train = trains[user.current_train_id]
         line = lines[train.line_id]
         if edge.id in [e.id for e in line.edges]:
