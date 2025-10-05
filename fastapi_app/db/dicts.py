@@ -124,38 +124,38 @@ edges: Dict[int, Edge] = {
     40: Edge(id=40, from_stop=40, to_stop=41), # ZASTÓW → KRAKÓW PIASTÓW
     41: Edge(id=41, from_stop=41, to_stop=42), # KRAKÓW PIASTÓW → KRAKÓW BATOWICE
     42: Edge(id=42, from_stop=42, to_stop=22), # KRAKÓW BATOWICE → KRAKÓW ZABŁOCIE (wspólny!)
-    43: Edge(id=43, from_stop=22, to_stop=23), # KRAKÓW ZABŁOCIE → KRAKÓW GRZEGÓRZKI (wspólny!)
-    44: Edge(id=44, from_stop=23, to_stop=24), # KRAKÓW GRZEGÓRZKI → KRAKÓW GŁÓWNY (wspólny!)
-    45: Edge(id=45, from_stop=24, to_stop=25), # KRAKÓW GŁÓWNY → KRAKÓW ŁOBZÓW (wspólny!)
-    46: Edge(id=46, from_stop=25, to_stop=26), # KRAKÓW ŁOBZÓW → KRAKÓW BRONOWICE (wspólny!)
-    47: Edge(id=47, from_stop=26, to_stop=43), # KRAKÓW BRONOWICE → KRAKÓW LOTNISKO
-    
+    # 43: Edge(id=43, from_stop=22, to_stop=23), # KRAKÓW ZABŁOCIE → KRAKÓW GRZEGÓRZKI (wspólny!)
+    # 44: Edge(id=44, from_stop=23, to_stop=24), # KRAKÓW GRZEGÓRZKI → KRAKÓW GŁÓWNY (wspólny!)
+    # 45: Edge(id=45, from_stop=24, to_stop=25), # KRAKÓW GŁÓWNY → KRAKÓW ŁOBZÓW (wspólny!)
+    # 46: Edge(id=46, from_stop=25, to_stop=26), # KRAKÓW ŁOBZÓW → KRAKÓW BRONOWICE (wspólny!)
+    43: Edge(id=43, from_stop=26, to_stop=43), # KRAKÓW BRONOWICE → KRAKÓW LOTNISKO
+    ##ostatni 43
     # Linia 3: Wieliczka RYNEK-KOPALNIA → Kraków Lotnisko (11 edges)
-    50: Edge(id=50, from_stop=50, to_stop=51), # WIELICZKA RYNEK-KOPALNIA → WIELICZKA PARK
-    51: Edge(id=51, from_stop=51, to_stop=52), # WIELICZKA PARK → WIELICZKA BOGUCICE
-    52: Edge(id=52, from_stop=52, to_stop=53), # WIELICZKA BOGUCICE → KRAKÓW BIEŻANÓW DROŻDŻOWNIA
-    53: Edge(id=53, from_stop=53, to_stop=54), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA → KRAKÓW BIEŻANÓW
-    54: Edge(id=54, from_stop=54, to_stop=55), # KRAKÓW BIEŻANÓW → KRAKÓW PROKOCIM
-    55: Edge(id=55, from_stop=55, to_stop=56), # KRAKÓW PROKOCIM → KRAKÓW PŁASZÓW
-    56: Edge(id=56, from_stop=56, to_stop=22), # KRAKÓW PŁASZÓW → KRAKÓW ZABŁOCIE (wspólny!)
-    57: Edge(id=57, from_stop=22, to_stop=23), # KRAKÓW ZABŁOCIE → KRAKÓW GRZEGÓRZKI (wspólny!)
-    58: Edge(id=58, from_stop=23, to_stop=24), # KRAKÓÓW GRZEGÓRZKI → KRAKÓW GŁÓWNY (wspólny!)
-    59: Edge(id=59, from_stop=24, to_stop=25), # KRAKÓÓW GŁÓWNY → KRAKÓW ŁOBZÓW (wspólny!)
-    60: Edge(id=60, from_stop=25, to_stop=26), # KRAKÓW ŁOBZÓW → KRAKÓW BRONOWICE (wspólny!)
-    61: Edge(id=61, from_stop=26, to_stop=57), # KRAKÓÓW BRONOWICE → KRAKÓÓW MŁYNÓWKA
-    62: Edge(id=62, from_stop=57, to_stop=58), # KRAKÓÓW MŁYNÓWKA → KRAKÓW ZAKLIKI
-    63: Edge(id=63, from_stop=58, to_stop=59), # KRAKÓW ZAKLIKI → KRAKÓW OLSZANICA
-    64: Edge(id=64, from_stop=59, to_stop=43),  # KRAKÓÓW OLSZANICA → KRAKÓÓW LOTNISKO
+    44: Edge(id=44, from_stop=50, to_stop=51), # WIELICZKA RYNEK-KOPALNIA → WIELICZKA PARK
+    45: Edge(id=45, from_stop=51, to_stop=52), # WIELICZKA PARK → WIELICZKA BOGUCICE
+    46: Edge(id=46, from_stop=52, to_stop=53), # WIELICZKA BOGUCICE → KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+    47: Edge(id=47, from_stop=53, to_stop=54), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA → KRAKÓW BIEŻANÓW
+    48: Edge(id=48, from_stop=54, to_stop=55), # KRAKÓW BIEŻANÓW → KRAKÓW PROKOCIM
+    49: Edge(id=49, from_stop=55, to_stop=56), # KRAKÓW PROKOCIM → KRAKÓW PŁASZÓW
+    50: Edge(id=50, from_stop=56, to_stop=22), # KRAKÓW PŁASZÓW → KRAKÓW ZABŁOCIE (wspólny!)
+    # 57: Edge(id=57, from_stop=22, to_stop=23), # KRAKÓW ZABŁOCIE → KRAKÓW GRZEGÓRZKI (wspólny!)
+    # 58: Edge(id=58, from_stop=23, to_stop=24), # KRAKÓÓW GRZEGÓRZKI → KRAKÓW GŁÓWNY (wspólny!)
+    # 59: Edge(id=59, from_stop=24, to_stop=25), # KRAKÓÓW GŁÓWNY → KRAKÓW ŁOBZÓW (wspólny!)
+    # 60: Edge(id=60, from_stop=25, to_stop=26), # KRAKÓW ŁOBZÓW → KRAKÓW BRONOWICE (wspólny!)
+    51: Edge(id=51, from_stop=26, to_stop=57), # KRAKÓÓW BRONOWICE → KRAKÓÓW MŁYNÓWKA
+    52: Edge(id=52, from_stop=57, to_stop=58), # KRAKÓÓW MŁYNÓWKA → KRAKÓW ZAKLIKI
+    53: Edge(id=53, from_stop=58, to_stop=59), # KRAKÓW ZAKLIKI → KRAKÓW OLSZANICA
+    54: Edge(id=54, from_stop=59, to_stop=43),  # KRAKÓÓW OLSZANICA → KRAKÓÓW LOTNISKO
     
     # Linia 4: KRAKÓW OPATKOWICE → WIELICZKA RYNEK-KOPALNIA (8 edges)
-    70: Edge(id=70, from_stop=20, to_stop=21), # KRAKÓW OPATKOWICE → KRAKÓW SWOSZOWICE
-    71: Edge(id=71, from_stop=21, to_stop=56), # KRAKÓW SWOSZOWICE → KRAKÓW PŁASZÓW
-    72: Edge(id=72, from_stop=56, to_stop=55), # KRAKÓW PŁASZÓW → KRAKÓW PROKOCIM
-    73: Edge(id=73, from_stop=55, to_stop=54), # KRAKÓW PROKOCIM → KRAKÓÓW BIEŻANÓW
-    74: Edge(id=74, from_stop=54, to_stop=53), # KRAKÓW BIEŻANÓW → KRAKÓW BIEŻANÓW DROŻDŻOWNIA
-    75: Edge(id=75, from_stop=53, to_stop=52), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA → WIELICZKA BOGUCICE
-    76: Edge(id=76, from_stop=52, to_stop=51), # WIELICZKA BOGUCICE → WIELICZKA PARK
-    77: Edge(id=77, from_stop=51, to_stop=50), # WIELICZKA PARK → WIELICZKA RYNEK-KOPALNIA
+    55: Edge(id=55, from_stop=20, to_stop=21), # KRAKÓW OPATKOWICE → KRAKÓW SWOSZOWICE
+    56: Edge(id=56, from_stop=21, to_stop=56), # KRAKÓW SWOSZOWICE → KRAKÓW PŁASZÓW
+    57: Edge(id=57, from_stop=56, to_stop=55), # KRAKÓW PŁASZÓW → KRAKÓW PROKOCIM
+    58: Edge(id=58, from_stop=55, to_stop=54), # KRAKÓW PROKOCIM → KRAKÓÓW BIEŻANÓW
+    59: Edge(id=59, from_stop=54, to_stop=53), # KRAKÓW BIEŻANÓW → KRAKÓW BIEŻANÓW DROŻDŻOWNIA
+    60: Edge(id=60, from_stop=53, to_stop=52), # KRAKÓW BIEŻANÓW DROŻDŻOWNIA → WIELICZKA BOGUCICE
+    61: Edge(id=61, from_stop=52, to_stop=51), # WIELICZKA BOGUCICE → WIELICZKA PARK
+    62: Edge(id=62, from_stop=51, to_stop=50), # WIELICZKA PARK → WIELICZKA RYNEK-KOPALNIA
 }
 
 # Tabela Schedules - 5 harmonogramów dla każdej linii w obie strony
@@ -1059,21 +1059,21 @@ lines: Dict[int, Line] = {
         id=2,
         name="Linia Miechów - Kraków Lotnisko",
         number="2",
-        edges=[edges[i] for i in range(30, 48)],
+        edges=[edges[i] for i in range(30, 43)] + [edges[i] for i in range(22, 26)] + [edges[i] for i in range(43, 44)],
         time_table=[schedules[i] for i in range(10, 15)] + [schedules[i] for i in range(15, 20)]  # Oba kierunki
     ),
     3: Line(
         id=3,
         name="Linia Wieliczka - Kraków Lotnisko",
         number="3",
-        edges=[edges[i] for i in range(50, 65)],
+        edges=[edges[i] for i in range(44, 51)] + [edges[i] for i in range(22, 26)] + [edges[i] for i in range(51, 55)],
         time_table=[schedules[i] for i in range(20, 25)] + [schedules[i] for i in range(25, 30)]  # Oba kierunki
     ),
     4: Line(
         id=4,
         name="Linia KRAKÓW OPATKOWICE - WIELICZKA",
         number="4",
-        edges=[edges[i] for i in range(70, 78)],
+        edges=[edges[i] for i in range(55, 63)],
         time_table=[schedules[i] for i in range(30, 35)] + [schedules[i] for i in range(35, 40)]  # Oba kierunki
     ),
 }
@@ -1094,7 +1094,7 @@ events: Dict[int, Event] = {
         title="Opóźnienie pociągu",
         description="Pociąg opóźniony o 30 minut",
         timestamp=datetime(2024, 1, 15, 14, 30),
-        location=LatLng(lat=50.0484386, lng=19.956833),  # KRAKÓW ZABŁOCIE (stop 22)
+        location=LatLng(lat=50.0484386, lng=19.956833),
         edge_affected=22,
         time=datetime(2024, 1, 15, 14, 30),
         event_type="delay",
@@ -1106,7 +1106,7 @@ events: Dict[int, Event] = {
         title="Prace konserwacyjne",
         description="Prace na torowisku",
         timestamp=datetime(2024, 1, 15, 16, 45),
-        location=LatLng(lat=50.0683947, lng=19.9475035),  # KRAKÓW GŁÓWNY (stop 25)
+        location=LatLng(lat=50.0683947, lng=19.9475035),
         edge_affected=23,
         time=datetime(2024, 1, 15, 16, 45),
         event_type="maintenance",
@@ -1118,7 +1118,7 @@ events: Dict[int, Event] = {
         title="Odwołany kurs",
         description="Kurs odwołany z powodu remontu",
         timestamp=datetime(2024, 1, 15, 10, 15),
-        location=LatLng(lat=50.0828134, lng=19.8919081),  # KRAKÓW BRONOWICE (stop 27)
+        location=LatLng(lat=50.0828134, lng=19.8919081),
         edge_affected=25,
         time=datetime(2024, 1, 15, 10, 15),
         event_type="cancellation",
@@ -1130,21 +1130,9 @@ events: Dict[int, Event] = {
         title="Juwenalia",
         description="Juwenalia w Krakowie, przewidywane spore utrudnienia w ruchu",
         timestamp=datetime(2024, 1, 15, 10, 15),
-        location=LatLng(lat=50.0683947, lng=19.9475035),  # KRAKÓW GŁÓWNY (stop 25)
+        location=LatLng(lat=50.0828134, lng=19.8919081),
         edge_affected=25,
         time=datetime(2024, 1, 15, 10, 15),
-        event_type="cancellation",
-        reportedBy="system"
-    ),
-    5: Event(
-        id=5,
-        type=IncidentType.CANCELLATION,
-        title="Alert RCB",
-        description="Powódź w RCB, przewidywane spore utrudnienia w ruchu",
-        timestamp=datetime(2024, 1, 15, 10, 15),
-        location=LatLng(lat=50.0819062, lng=19.9172491),  # KRAKÓW ŁOBZÓW (stop 26)
-        edge_affected=25,
-        time=datetime(2024, 1, 16, 9, 15),
         event_type="cancellation",
         reportedBy="system"
     )
