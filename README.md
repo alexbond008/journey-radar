@@ -65,7 +65,7 @@ Journey Radar is built as a full-stack application with the following components
 #### Backend Development
 ```bash
 cd fastapi_app
-python -m uvicorn main:app --host 0.0.0.0 --port 8000
+python -m uvicorn main:app --host 0.0.0.0 --port 8080
 ```
 
 #### Frontend Development
@@ -127,19 +127,6 @@ The application uses Docker Compose for orchestration with:
 - Hot reload enabled for development
 - Volume mounting for live code updates
 - Network mode host for local development
-
-## 📊 Data Coverage
-
-### Transportation Lines
-1. **Line 1**: Oświęcim - Kraków
-2. **Line 2**: Miechów - Kraków Lotnisko  
-3. **Line 3**: Kraków - Zakopane
-4. **Line 4**: Kraków - Nowy Sącz
-
-### Geographic Coverage
-- **Region**: Małopolska (Lesser Poland)
-- **Major Cities**: Kraków, Oświęcim, Miechów, Zakopane, Nowy Sącz
-- **Stops**: 50+ transportation stops with GPS coordinates
 
 ## 🚨 Incident Types
 
