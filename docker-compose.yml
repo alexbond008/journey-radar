@@ -25,9 +25,6 @@ services:
       - "3000:3000"
     environment:
       - VITE_API_URL=http://localhost:8080
-    volumes:
-      - ./journey-radar:/app
-      - /app/node_modules
     networks:
       - journey-radar-network
     depends_on:
