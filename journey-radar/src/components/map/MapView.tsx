@@ -31,6 +31,20 @@ export function MapView({ events, selectedRoute, routeSegments, userLocation, on
   const pinMarkerRef = useRef<L.Marker | null>(null);
   const [isClient, setIsClient] = useState(false);
 
+  // Store callback refs to avoid stale closures
+  const onMarkerClickRef = useRef(onMarkerClick);
+  const onChatClickRef = useRef(onChatClick);
+  const onPinPlacedRef = useRef(onPinPlaced);
+  const onMapReadyRef = useRef(onMapReady);
+
+  // Update refs when callbacks change
+  useEffect(() => {
+    onMarkerClickRef.current = onMarkerClick;
+    onChatClickRef.current = onChatClick;
+    onPinPlacedRef.current = onPinPlaced;
+    onMapReadyRef.current = onMapReady;
+  }, [onMarkerClick, onChatClick, onPinPlaced, onMapReady]);
+
   useEffect(() => {
     setIsClient(true);
     
@@ -38,8 +52,8 @@ export function MapView({ events, selectedRoute, routeSegments, userLocation, on
     if (typeof window !== 'undefined') {
       (window as any).mapTooltipHandlers = {
         openChat: (eventId: string) => {
-          if (onChatClick) {
-            onChatClick(eventId);
+          if (onChatClickRef.current) {
+            onChatClickRef.current(eventId);
           }
         },
       };
@@ -51,7 +65,7 @@ export function MapView({ events, selectedRoute, routeSegments, userLocation, on
         delete (window as any).mapTooltipHandlers;
       }
     };
-  }, [onChatClick]);
+  }, []);
 
   // Function to center the map on the current route
   const centerOnRoute = () => {
@@ -84,10 +98,11 @@ export function MapView({ events, selectedRoute, routeSegments, userLocation, on
 
   // Expose centerOnRoute function to parent component
   useEffect(() => {
-    if (onMapReady && mapInstanceRef.current) {
-      onMapReady(centerOnRoute);
+    if (onMapReadyRef.current && mapInstanceRef.current) {
+      onMapReadyRef.current(centerOnRoute);
     }
-  }, [onMapReady, routeSegments, selectedRoute]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeSegments, selectedRoute]);
 
   useEffect(() => {
     if (!isClient || !mapRef.current) return;
@@ -171,8 +186,8 @@ export function MapView({ events, selectedRoute, routeSegments, userLocation, on
         });
 
         marker.on('click', () => {
-          if (onMarkerClick) {
-            onMarkerClick(event.id);
+          if (onMarkerClickRef.current) {
+            onMarkerClickRef.current(event.id);
           }
         });
 
@@ -503,9 +518,9 @@ export function MapView({ events, selectedRoute, routeSegments, userLocation, on
 
         // Notify parent when pin is dragged
         pinMarkerRef.current.on('dragend', () => {
-          if (pinMarkerRef.current && onPinPlaced) {
+          if (pinMarkerRef.current && onPinPlacedRef.current) {
             const position = pinMarkerRef.current.getLatLng();
-            onPinPlaced({ lat: position.lat, lng: position.lng });
+            onPinPlacedRef.current({ lat: position.lat, lng: position.lng });
           }
         });
 
@@ -513,8 +528,8 @@ export function MapView({ events, selectedRoute, routeSegments, userLocation, on
         const mapClickHandler = (e: L.LeafletMouseEvent) => {
           if (pinMarkerRef.current) {
             pinMarkerRef.current.setLatLng(e.latlng);
-            if (onPinPlaced) {
-              onPinPlaced({ lat: e.latlng.lat, lng: e.latlng.lng });
+            if (onPinPlacedRef.current) {
+              onPinPlacedRef.current({ lat: e.latlng.lat, lng: e.latlng.lng });
             }
           }
         };
@@ -545,7 +560,8 @@ export function MapView({ events, selectedRoute, routeSegments, userLocation, on
     };
 
     initMap();
-  }, [isClient, events, selectedRoute, routeSegments, userLocation, onMarkerClick, onChatClick, pinPlacementMode, pinnedLocation, onPinPlaced, tooltipType]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isClient, events, selectedRoute, routeSegments, userLocation, pinPlacementMode, pinnedLocation, tooltipType]);
 
   if (!isClient) {
     return (

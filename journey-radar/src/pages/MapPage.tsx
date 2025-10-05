@@ -80,6 +80,17 @@ export function MapPage() {
     }
   };
 
+  const handleRoutePanelClose = () => {
+    setRoutePanelOpen(false);
+    // Center map on route after dialog closes and route is set
+    // Use setTimeout to ensure the dialog closing animation doesn't interfere
+    setTimeout(() => {
+      if (centerRouteFunc && (routeSegments || selectedRoute)) {
+        centerRouteFunc();
+      }
+    }, 100);
+  };
+
   return (
     <div className="h-screen flex flex-col bg-background">
       <Header onRoutesClick={() => setRoutePanelOpen(true)} />
@@ -239,7 +250,7 @@ export function MapPage() {
       {/* Modals */}
       <RouteSelectorPanel
         isOpen={routePanelOpen}
-        onClose={() => setRoutePanelOpen(false)}
+        onClose={handleRoutePanelClose}
       />
       <ReportIncidentModal
         isOpen={reportModalOpen}

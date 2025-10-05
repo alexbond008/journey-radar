@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
 import { MapPin, Navigation, X, RotateCcw } from 'lucide-react';
 import { useStops } from '@/hooks/useStops';
 import { useRoutes } from '@/hooks/useRoutes';
@@ -24,7 +23,6 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
   const [startStop, setStartStop] = useState<Stop | null>(null);
   const [destStop, setDestStop] = useState<Stop | null>(null);
   const [loading, setLoading] = useState(false);
-  const [routeFound, setRouteFound] = useState(false);
 
   const debouncedStartQuery = useDebounce(startQuery, 300);
   const debouncedDestQuery = useDebounce(destQuery, 300);
@@ -48,18 +46,18 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
     });
 
     setLoading(true);
-    setRouteFound(false);
     try {
       const segments = await routesService.findRoute(startStop, destStop);
       
       if (segments && Object.keys(segments).length > 0) {
         console.log('Route segments received:', segments);
         setRouteSegments(segments);
-        setRouteFound(true);
         toast({
           title: 'Route found!',
           description: `Found ${Object.keys(segments).length} segment(s) for your journey`,
         });
+        // Close dialog immediately to show the route on map
+        onClose();
       } else {
         toast({
           title: 'No route found',
@@ -86,7 +84,6 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
     setDestQuery('');
     setStartStop(null);
     setDestStop(null);
-    setRouteFound(false);
     setRouteSegments(null);
   };
 
@@ -126,7 +123,7 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
                 />
               </div>
               {startSuggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-md shadow-lg z-20 max-h-72 overflow-y-auto">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-md shadow-lg z-20">
                   {startSuggestions.map((stop) => (
                     <button
                       key={stop.id}
@@ -158,7 +155,7 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
                 />
               </div>
               {destSuggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-md shadow-lg z-20 max-h-72 overflow-y-auto">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-md shadow-lg z-20">
                   {destSuggestions.map((stop) => (
                     <button
                       key={stop.id}
@@ -189,33 +186,10 @@ export function RouteSelectorPanel({ isOpen, onClose }: RouteSelectorPanelProps)
                 className="h-12 px-4"
                 title="Clear all fields"
               >
-                <RotateCcw className="w-5 h-5" />
-              </Button>
-            </div>
-
-            {/* Route Found Message */}
-            {routeFound && (
-              <div className="mt-6">
-                <Card className="p-5 bg-primary/10 border-primary">
-                  <div className="text-center">
-                    <div className="font-semibold text-lg text-primary mb-2">
-                      ✓ Route found and displayed on map!
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      The route is now shown on the map with different colors for each segment.
-                    </div>
-                    <Button
-                      onClick={onClose}
-                      className="mt-4"
-                      variant="outline"
-                    >
-                      Close & View Map
-                    </Button>
-                  </div>
-                </Card>
-              </div>
-            )}
+              <RotateCcw className="w-5 h-5" />
+            </Button>
           </div>
+        </div>
         </div>
       </div>
     </>
