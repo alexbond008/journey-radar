@@ -95,7 +95,7 @@ async def get_line_with_stops(line_id: int) -> LineResponse:
 async def report_event(event_data: EventCreate):
     """Report a new event for a route"""
 
-    edge_id = find_nearest_edge(event_data.location, stops)
+    edge_id = find_nearest_edge(event_data.location)
 
     
     # Create new event

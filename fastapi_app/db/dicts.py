@@ -8,18 +8,18 @@ import logging
 
 # Tabela Users
 users: Dict[int, User] = {
-    1: User(id=1, name="Jan Kowalski", email="jan@example.com", level=15, reputation="Zaufany Pasażer", current_train_id=1),  # Zaufany Pasażer
-    2: User(id=2, name="Anna Nowak", email="anna@example.com", level=8, reputation="Nowicjusz Podróżnik", current_train_id=1),    # Nowicjusz Podróżnik
-    3: User(id=3, name="Piotr Wiśniewski", email="piotr@example.com", level=0, reputation="Anonimowy", current_train_id=1),  # Anonimowy
-    4: User(id=4, name="Maria Kowalczyk", email="maria@example.com", level=25, reputation="Ekspert Tras", current_train_id=1),  # Ekspert Tras
-    5: User(id=5, name="Tomasz Lewandowski", email="tomasz@example.com", level=-3, reputation="Podejrzany", current_train_id=1),  # Podejrzany
-    6: User(id=6, name="Katarzyna Zielińska", email="kasia@example.com", level=50, reputation="Mistrz Komunikacji", current_train_id=1),  # Mistrz Komunikacji
-    7: User(id=7, name="Michał Dąbrowski", email="michal@example.com", level=120, reputation="Legenda Transportu", current_train_id=1),  # Legenda Transportu
-    8: User(id=8, name="Agnieszka Wójcik", email="aga@example.com", level=250, reputation="Guru Podróży", current_train_id=1),  # Guru Podróży
-    9: User(id=9, name="Robert Kamiński", email="robert@example.com", level=600, reputation="Czarodziej Infrastruktury", current_train_id=1),  # Czarodziej Infrastruktury
-    10: User(id=10, name="Magdalena Krawczyk", email="magda@example.com", level=-15, reputation="Niewiarygodny Reporter", current_train_id=1),  # Niewiarygodny Reporter
-    11: User(id=11, name="Paweł Szymański", email="pawel@example.com", level=-30, reputation="Czarna Lista", current_train_id=1),  # Czarna Lista
-    12: User(id=12, name="Joanna Woźniak", email="joanna@example.com", level=3, reputation="Nowicjusz Podróżnik", current_train_id=1),   # Nowicjusz Podróżnik
+    1: User(id=1, name="Jan Kowalski", email="jan@example.com", level=15, reputation="Zaufany Pasażer", current_train_id=101),  # Zaufany Pasażer
+    2: User(id=2, name="Anna Nowak", email="anna@example.com", level=8, reputation="Nowicjusz Podróżnik", current_train_id=101),    # Nowicjusz Podróżnik
+    3: User(id=3, name="Piotr Wiśniewski", email="piotr@example.com", level=0, reputation="Anonimowy", current_train_id=101),  # Anonimowy
+    4: User(id=4, name="Maria Kowalczyk", email="maria@example.com", level=25, reputation="Ekspert Tras", current_train_id=101),  # Ekspert Tras
+    5: User(id=5, name="Tomasz Lewandowski", email="tomasz@example.com", level=-3, reputation="Podejrzany", current_train_id=101),  # Podejrzany
+    6: User(id=6, name="Katarzyna Zielińska", email="kasia@example.com", level=50, reputation="Mistrz Komunikacji", current_train_id=101),  # Mistrz Komunikacji
+    7: User(id=7, name="Michał Dąbrowski", email="michal@example.com", level=120, reputation="Legenda Transportu", current_train_id=101),  # Legenda Transportu
+    8: User(id=8, name="Agnieszka Wójcik", email="aga@example.com", level=250, reputation="Guru Podróży", current_train_id=101),  # Guru Podróży
+    9: User(id=9, name="Robert Kamiński", email="robert@example.com", level=600, reputation="Czarodziej Infrastruktury", current_train_id=101),  # Czarodziej Infrastruktury
+    10: User(id=10, name="Magdalena Krawczyk", email="magda@example.com", level=-15, reputation="Niewiarygodny Reporter", current_train_id=101),  # Niewiarygodny Reporter
+    11: User(id=11, name="Paweł Szymański", email="pawel@example.com", level=-30, reputation="Czarna Lista", current_train_id=101),  # Czarna Lista
+    12: User(id=12, name="Joanna Woźniak", email="joanna@example.com", level=3, reputation="Nowicjusz Podróżnik", current_train_id=101),   # Nowicjusz Podróżnik
 }
 
 # Tabela Stops - UNIKALNE przystanki (każdy pojawia się tylko raz, niezależnie od liczby linii)

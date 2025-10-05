@@ -1,6 +1,6 @@
 from models.database_models import LatLng, Stop, Line, Schedule
 from repositiories.user_repository import get_stop_by_id
-from db.dicts import lines
+from db.dicts import lines, stops
 from typing import List, Optional, Dict
 from datetime import time, datetime
 from queue import PriorityQueue
@@ -28,12 +28,12 @@ def calculate_distance(point1: LatLng, point2: LatLng) -> float:
     
     return earth_radius * c
 
-def find_nearest_edge(location: LatLng, stops: List[Stop]) -> int:
+def find_nearest_edge(location: LatLng) -> int:
     """Znajduje najbliższy przystanek do danego punktu"""
     nearest_stop = 1  # Domyślny przystanek
     nearest_distance = float('inf')
     
-    for stop in stops:
+    for stop in stops.values():
         stop_location = LatLng(lat=stop.lat, lng=stop.lon)
         distance = calculate_distance(location, stop_location)
         if distance < nearest_distance:
