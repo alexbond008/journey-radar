@@ -6,14 +6,10 @@ services:
       context: ./fastapi_app
       dockerfile: Dockerfile
     container_name: journey-radar-backend
-    ports:
-      - "8080:8080"
     environment:
       - PYTHONUNBUFFERED=1
-    volumes:
-      - ./fastapi_app:/app
-    networks:
-      - journey-radar-network
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    network_mode: host
     restart: unless-stopped
 
   frontend:
@@ -21,17 +17,10 @@ services:
       context: ./journey-radar
       dockerfile: Dockerfile
     container_name: journey-radar-frontend
-    ports:
-      - "3000:3000"
     environment:
       - VITE_API_URL=http://localhost:8080
-    networks:
-      - journey-radar-network
+    network_mode: host
     depends_on:
       - backend
     restart: unless-stopped
-
-networks:
-  journey-radar-network:
-    driver: bridge
 
